@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { DependencyGraph } from "@/components/DependencyGraph";
+import { ExportButtons } from "@/components/ExportButtons";
+import { SeverityChart } from "@/components/SeverityChart";
 import { fetchScan, type Dependency, type Finding, type Scan } from "@/lib/api";
+import { countBySeverity } from "@/lib/risk";
 
 const TERMINAL = new Set(["complete", "failed"]);
 
@@ -73,13 +77,46 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
     });
   }, [findings, severityFilter, typeFilter]);
 
-  const severityCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const f of findings) {
-      counts[f.severity] = (counts[f.severity] ?? 0) + 1;
-    }
-    return counts;
-  }, [findings]);
+  const severityCounts = useMemo(() => countBySeverity(findings), [findings]);
+
+  const summaryCards = useMemo(() => {
+    if (!scan) return [];
+    return [
+      { label: "Dependencies", value: scan.dependency_count ?? deps.length },
+      {
+        label: "Vulnerabilities",
+        value:
+          scan.vulnerability_count ??
+          findings.filter((f) => f.type === "vulnerability").length,
+      },
+      {
+        label: "Typosquats",
+        value: scan.typosquat_count ?? findings.filter((f) => f.type === "typosquat").length,
+      },
+      {
+        label: "Dep confusion",
+        value:
+          scan.dep_confusion_count ??
+          findings.filter((f) => f.type === "dep_confusion").length,
+      },
+      {
+        label: "CI/CD",
+        value: scan.cicd_count ?? findings.filter((f) => f.type === "cicd").length,
+      },
+      {
+        label: "Secrets",
+        value: scan.secret_count ?? findings.filter((f) => f.type === "secret").length,
+      },
+      {
+        label: "Licenses",
+        value: scan.license_count ?? findings.filter((f) => f.type === "license").length,
+      },
+      {
+        label: "Total findings",
+        value: scan.finding_count ?? findings.length,
+      },
+    ];
+  }, [scan, deps.length, findings]);
 
   if (error && !scan) {
     return <p className="text-red-300">{error}</p>;
@@ -90,68 +127,38 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
 
   return (
     <div className="space-y-10">
-      <div>
-        <p className="text-sm uppercase tracking-[0.18em] text-accent">Scan status</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-white">{scan.repo_url}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-sm uppercase tracking-[0.18em] text-accent">Scan report</p>
+          <h1 className="mt-2 font-display text-3xl font-semibold text-white">
+            {scan.repo_url.replace(/^https:\/\/github\.com\//i, "")}
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Status: <span className="capitalize text-slate-200">{scan.status}</span>
+            {" · "}
+            Project: {scan.project_type}
+            {scan.completed_at
+              ? ` · Completed ${new Date(scan.completed_at).toLocaleString()}`
+              : null}
+          </p>
+        </div>
+        {scan.status === "complete" ? (
+          <ExportButtons scan={scan} deps={deps} findings={findings} />
+        ) : null}
       </div>
 
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Status</dt>
-          <dd className="mt-1 text-lg capitalize text-white">{scan.status}</dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Dependencies</dt>
-          <dd className="mt-1 text-lg text-white">{scan.dependency_count ?? deps.length}</dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Vulnerabilities</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.vulnerability_count ?? findings.filter((f) => f.type === "vulnerability").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Typosquats</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.typosquat_count ?? findings.filter((f) => f.type === "typosquat").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Dep confusion</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.dep_confusion_count ??
-              findings.filter((f) => f.type === "dep_confusion").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">CI/CD</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.cicd_count ?? findings.filter((f) => f.type === "cicd").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Secrets</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.secret_count ?? findings.filter((f) => f.type === "secret").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Licenses</dt>
-          <dd className="mt-1 text-lg text-white">
-            {scan.license_count ?? findings.filter((f) => f.type === "license").length}
-          </dd>
-        </div>
-        <div className="border-l-2 border-accent/40 pl-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Completed</dt>
-          <dd className="mt-1 text-sm text-slate-200">
-            {scan.completed_at ? new Date(scan.completed_at).toLocaleString() : "—"}
-          </dd>
-        </div>
+        {summaryCards.map((card) => (
+          <div key={card.label} className="border-l-2 border-accent/40 pl-3">
+            <dt className="text-xs uppercase tracking-wide text-slate-400">{card.label}</dt>
+            <dd className="mt-1 text-lg text-white">{card.value}</dd>
+          </div>
+        ))}
       </dl>
 
       {scan.status === "queued" || scan.status === "running" ? (
         <p className="text-sm text-amber-200">
-          Parsing manifests and querying OSV.dev… this can take a minute for large lockfiles.
+          Parsing manifests and running analyzers… this can take 1–2 minutes for large repos.
         </p>
       ) : null}
 
@@ -163,6 +170,31 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
 
       {scan.status === "complete" ? (
         <>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <div>
+              <h2 className="font-display text-xl font-semibold text-white">
+                Findings by severity
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Distribution across all finding types.
+              </p>
+              <div className="mt-4 rounded-md border border-white/10 bg-white/[0.03] p-3">
+                <SeverityChart counts={severityCounts} />
+              </div>
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-semibold text-white">
+                Dependency graph
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Parent → child edges from lockfile / manifest relationships.
+              </p>
+              <div className="mt-4">
+                <DependencyGraph dependencies={deps} findings={findings} />
+              </div>
+            </div>
+          </section>
+
           <section className="space-y-4">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
@@ -170,16 +202,8 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                   Security findings
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  OSV vulns, typosquats, dependency confusion, CI/CD risks, secrets (masked), and
-                  license policy issues based on project type ({scan.project_type}).
+                  Filter by type and severity. Each row includes remediation when available.
                 </p>
-                {Object.keys(severityCounts).length > 0 ? (
-                  <p className="mt-2 text-xs text-slate-400">
-                    {Object.entries(severityCounts)
-                      .map(([k, v]) => `${k}: ${v}`)
-                      .join(" · ")}
-                  </p>
-                ) : null}
               </div>
               <div className="flex flex-wrap gap-3 text-sm">
                 <label className="flex items-center gap-2 text-slate-300">
@@ -217,44 +241,57 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
             </div>
 
             {findings.length === 0 ? (
-              <p className="text-sm text-accent">No vulnerability or typosquat findings.</p>
+              <p className="text-sm text-accent">No findings for this scan.</p>
+            ) : filteredFindings.length === 0 ? (
+              <p className="text-sm text-slate-400">No findings match the current filters.</p>
             ) : (
-              <ul className="space-y-3">
-                {filteredFindings.map((f) => (
-                  <li
-                    key={f.id}
-                    className="rounded-md border border-white/10 bg-white/[0.03] px-4 py-3"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={`rounded border px-2 py-0.5 text-xs uppercase tracking-wide ${SEVERITY_STYLES[f.severity] ?? SEVERITY_STYLES.info}`}
-                      >
-                        {f.severity}
-                      </span>
-                      <span className="text-xs uppercase tracking-wide text-slate-500">
-                        {f.type}
-                      </span>
-                    </div>
-                    <h3 className="mt-2 font-medium text-white">{f.title}</h3>
-                    {f.dependency_name ? (
-                      <p className="mt-1 text-sm text-slate-400">
-                        Package: {f.dependency_name}
-                        {f.dependency_version ? `@${f.dependency_version}` : ""}
-                      </p>
-                    ) : null}
-                    {f.file_path ? (
-                      <p className="mt-1 text-sm text-slate-400">
-                        File: {f.file_path}
-                        {f.line_number ? `:${f.line_number}` : ""}
-                      </p>
-                    ) : null}
-                    <p className="mt-2 text-sm leading-relaxed text-slate-300">{f.description}</p>
-                    {f.remediation ? (
-                      <p className="mt-2 text-sm text-accent">Fix: {f.remediation}</p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              <div className="overflow-x-auto rounded-md border border-white/10">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+                    <tr>
+                      <th className="px-3 py-2 font-medium">Severity</th>
+                      <th className="px-3 py-2 font-medium">Type</th>
+                      <th className="px-3 py-2 font-medium">Title</th>
+                      <th className="px-3 py-2 font-medium">Package / file</th>
+                      <th className="px-3 py-2 font-medium">Remediation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredFindings.map((f) => (
+                      <tr key={f.id} className="border-t border-white/10 align-top text-slate-200">
+                        <td className="px-3 py-2">
+                          <span
+                            className={`rounded border px-2 py-0.5 text-xs uppercase tracking-wide ${SEVERITY_STYLES[f.severity] ?? SEVERITY_STYLES.info}`}
+                          >
+                            {f.severity}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">
+                          {f.type}
+                        </td>
+                        <td className="px-3 py-2">
+                          <p className="font-medium text-white">{f.title}</p>
+                          <p className="mt-1 max-w-md text-xs leading-relaxed text-slate-400">
+                            {f.description}
+                          </p>
+                        </td>
+                        <td className="px-3 py-2 text-slate-300">
+                          {f.dependency_name
+                            ? `${f.dependency_name}${f.dependency_version ? `@${f.dependency_version}` : ""}`
+                            : null}
+                          {f.file_path
+                            ? `${f.dependency_name ? " · " : ""}${f.file_path}${f.line_number ? `:${f.line_number}` : ""}`
+                            : null}
+                          {!f.dependency_name && !f.file_path ? "—" : null}
+                        </td>
+                        <td className="max-w-xs px-3 py-2 text-accent">
+                          {f.remediation ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 

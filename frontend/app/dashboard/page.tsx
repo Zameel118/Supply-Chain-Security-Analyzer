@@ -36,7 +36,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-5xl px-6 py-10">
       <p className="text-sm uppercase tracking-[0.18em] text-accent">Dashboard</p>
       <h1 className="mt-2 font-display text-3xl font-semibold text-white">
         Scan a repository

@@ -7,7 +7,7 @@ export default async function ScanPage({
 }) {
   const { id } = await params;
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-6xl px-6 py-10">
       <ScanStatusPoller scanId={id} />
     </main>
   );

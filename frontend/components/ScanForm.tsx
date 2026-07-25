@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ScanHistory } from "@/components/ScanHistory";
 import {
   createScan,
   fetchRepos,
@@ -150,36 +151,12 @@ export function ScanForm() {
       </form>
 
       <section>
-        <h2 className="font-display text-xl font-semibold text-white">Recent scans</h2>
-        {history.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-400">No scans yet.</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-white/10 border-y border-white/10">
-            {history.map((scan) => (
-              <li key={scan.id} className="flex items-center justify-between gap-4 py-3 text-sm">
-                <a href={`/scans/${scan.id}`} className="truncate text-slate-200 hover:text-accent">
-                  {scan.repo_url}
-                </a>
-                <StatusPill status={scan.status} />
-              </li>
-            ))}
-          </ul>
-        )}
+        <h2 className="font-display text-xl font-semibold text-white">Scan history</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Your last 50 scans with dependency and finding counts.
+        </p>
+        <ScanHistory scans={history} />
       </section>
     </div>
-  );
-}
-
-function StatusPill({ status }: { status: Scan["status"] }) {
-  const colors: Record<Scan["status"], string> = {
-    queued: "border-slate-400/40 text-slate-300",
-    running: "border-amber-400/50 text-amber-200",
-    complete: "border-accent/50 text-accent",
-    failed: "border-danger/50 text-red-300",
-  };
-  return (
-    <span className={`shrink-0 rounded border px-2 py-0.5 text-xs uppercase tracking-wide ${colors[status]}`}>
-      {status}
-    </span>
   );
 }

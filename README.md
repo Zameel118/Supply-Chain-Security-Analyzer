@@ -25,7 +25,7 @@ Full-stack app that scans a GitHub repository for dependency vulnerabilities, ty
 - [x] **Phase 5** — Dependency confusion detection
 - [x] **Phase 6** — CI/CD and secret scanning
 - [x] **Phase 7** — License compliance
-- [ ] Phase 8 — Dashboard & reporting
+- [x] **Phase 8** — Dashboard & reporting
 - [ ] Phase 9 — Deployment (Render + Vercel)
 
 ## Auth choice
@@ -91,6 +91,11 @@ supply-chain-analyzer/
 └── README.md
 ```
 
-## Security note
+## Phase 8 reporting
+
+Completed scans show summary counts, a severity bar chart (Recharts), a dependency graph
+(React Flow, color-coded by risk), a filterable findings table, and **Export JSON** /
+**Export PDF** (print dialog → Save as PDF). The dashboard lists scan history with counts.
+
 
 Scans read manifests, lockfiles, CI configs, and source text only (GitHub Contents API or a shallow read-only clone into a temp directory that is deleted afterward). Dependencies from scanned repos are **never** installed or run.
