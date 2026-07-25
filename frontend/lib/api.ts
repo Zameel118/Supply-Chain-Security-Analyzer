@@ -27,7 +27,10 @@ export type Scan = {
   created_at: string;
   completed_at: string | null;
   dependency_count?: number;
+  finding_count?: number;
+  vulnerability_count?: number;
   dependencies?: Dependency[];
+  findings?: Finding[];
 };
 
 export type Dependency = {
@@ -38,6 +41,20 @@ export type Dependency = {
   is_direct: boolean;
   depth: number;
   parent_dependency_id: string | null;
+};
+
+export type Finding = {
+  id: string;
+  type: string;
+  severity: string;
+  title: string;
+  description: string;
+  remediation: string | null;
+  dependency_id: string | null;
+  file_path: string | null;
+  line_number: number | null;
+  dependency_name?: string | null;
+  dependency_version?: string | null;
 };
 
 export type Repo = {

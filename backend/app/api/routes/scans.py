@@ -7,22 +7,38 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_user
-from app.api.schemas import DependencyOut, RepoOut, ScanCreate, ScanDetailOut, ScanOut
+from app.api.schemas import (
+    DependencyOut,
+    FindingOut,
+    RepoOut,
+    ScanCreate,
+    ScanDetailOut,
+    ScanOut,
+)
 from app.core.database import get_db
 from app.core.github import list_user_repos, parse_repo_url
 from app.core.security import decrypt_token
-from app.models import Dependency, Scan, ScanStatus, User
+from app.models import Dependency, Finding, FindingType, Scan, ScanStatus, User
 from app.tasks.scan_tasks import run_scan
 
 router = APIRouter(prefix="/api", tags=["scans"])
 
 
 def _scan_out(db: Session, scan: Scan) -> ScanOut:
-    count = (
+    dep_count = (
         db.query(func.count(Dependency.id)).filter(Dependency.scan_id == scan.id).scalar() or 0
+    )
+    finding_count = (
+        db.query(func.count(Finding.id)).filter(Finding.scan_id == scan.id).scalar() or 0
+    )
+    vuln_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.vulnerability)
+        .scalar()
+        or 0
     )
     return ScanOut(
         id=scan.id,
@@ -33,7 +49,28 @@ def _scan_out(db: Session, scan: Scan) -> ScanOut:
         error_message=scan.error_message,
         created_at=scan.created_at,
         completed_at=scan.completed_at,
-        dependency_count=int(count),
+        dependency_count=int(dep_count),
+        finding_count=int(finding_count),
+        vulnerability_count=int(vuln_count),
+    )
+
+
+def _finding_out(finding: Finding) -> FindingOut:
+    dep = finding.dependency
+    return FindingOut(
+        id=finding.id,
+        type=finding.type.value if hasattr(finding.type, "value") else str(finding.type),
+        severity=(
+            finding.severity.value if hasattr(finding.severity, "value") else str(finding.severity)
+        ),
+        title=finding.title,
+        description=finding.description,
+        remediation=finding.remediation,
+        dependency_id=finding.dependency_id,
+        file_path=finding.file_path,
+        line_number=finding.line_number,
+        dependency_name=dep.name if dep else None,
+        dependency_version=dep.version if dep else None,
     )
 
 
@@ -45,7 +82,29 @@ def _scan_detail(db: Session, scan: Scan) -> ScanDetailOut:
         .order_by(Dependency.depth.asc(), Dependency.name.asc())
         .all()
     )
-    return ScanDetailOut(**base.model_dump(), dependencies=deps)
+    findings = (
+        db.query(Finding)
+        .options(joinedload(Finding.dependency))
+        .filter(Finding.scan_id == scan.id)
+        .order_by(Finding.severity.asc(), Finding.title.asc())
+        .all()
+    )
+    # Order severity critical→info manually (enum alpha order is wrong)
+    severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+    findings_sorted = sorted(
+        findings,
+        key=lambda f: (
+            severity_rank.get(
+                f.severity.value if hasattr(f.severity, "value") else str(f.severity), 9
+            ),
+            f.title,
+        ),
+    )
+    return ScanDetailOut(
+        **base.model_dump(),
+        dependencies=deps,
+        findings=[_finding_out(f) for f in findings_sorted],
+    )
 
 
 @router.get("/repos", response_model=list[RepoOut])
@@ -140,3 +199,31 @@ def get_scan_dependencies(
         .order_by(Dependency.depth.asc(), Dependency.name.asc())
         .all()
     )
+
+
+@router.get("/scans/{scan_id}/findings", response_model=list[FindingOut])
+def get_scan_findings(
+    scan_id: UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> list[FindingOut]:
+    scan = db.get(Scan, scan_id)
+    if scan is None or scan.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    findings = (
+        db.query(Finding)
+        .options(joinedload(Finding.dependency))
+        .filter(Finding.scan_id == scan.id)
+        .all()
+    )
+    severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+    findings_sorted = sorted(
+        findings,
+        key=lambda f: (
+            severity_rank.get(
+                f.severity.value if hasattr(f.severity, "value") else str(f.severity), 9
+            ),
+            f.title,
+        ),
+    )
+    return [_finding_out(f) for f in findings_sorted]

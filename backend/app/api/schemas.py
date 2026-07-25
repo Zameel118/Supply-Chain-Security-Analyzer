@@ -33,6 +33,8 @@ class ScanOut(BaseModel):
     created_at: datetime
     completed_at: datetime | None
     dependency_count: int = 0
+    finding_count: int = 0
+    vulnerability_count: int = 0
 
     model_config = {"from_attributes": True}
 
@@ -49,10 +51,27 @@ class DependencyOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class FindingOut(BaseModel):
+    id: UUID
+    type: str
+    severity: str
+    title: str
+    description: str
+    remediation: str | None
+    dependency_id: UUID | None
+    file_path: str | None
+    line_number: int | None
+    dependency_name: str | None = None
+    dependency_version: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
 class ScanDetailOut(ScanOut):
-    """Scan metadata plus dependency rows (used by the results page)."""
+    """Scan metadata plus dependency + finding rows (results page)."""
 
     dependencies: list[DependencyOut] = []
+    findings: list[FindingOut] = []
 
 
 
