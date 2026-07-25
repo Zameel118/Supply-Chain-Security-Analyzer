@@ -112,6 +112,9 @@ export function ScanForm() {
               <option value="commercial">Commercial</option>
               <option value="open-source">Open source</option>
             </select>
+            <p className="mt-1.5 text-xs text-slate-500">
+              Commercial flags GPL/AGPL for review; open-source allows copyleft.
+            </p>
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-300" htmlFor="prefix">
@@ -124,6 +127,10 @@ export function ScanForm() {
               placeholder="@mycompany/"
               className="w-full rounded-md border border-white/15 bg-ink/60 px-3 py-2.5 text-white outline-none ring-accent focus:ring-2"
             />
+            <p className="mt-1.5 text-xs text-slate-500">
+              Used for dependency-confusion checks. Example: <code>@mycompany/</code> or{" "}
+              <code>acme-</code>. Leave blank to skip.
+            </p>
           </div>
         </div>
 

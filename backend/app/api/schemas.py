@@ -36,6 +36,10 @@ class ScanOut(BaseModel):
     finding_count: int = 0
     vulnerability_count: int = 0
     typosquat_count: int = 0
+    dep_confusion_count: int = 0
+    cicd_count: int = 0
+    secret_count: int = 0
+    license_count: int = 0
 
     model_config = {"from_attributes": True}
 

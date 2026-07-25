@@ -95,7 +95,7 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
         <h1 className="mt-2 font-display text-3xl font-semibold text-white">{scan.repo_url}</h1>
       </div>
 
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="border-l-2 border-accent/40 pl-3">
           <dt className="text-xs uppercase tracking-wide text-slate-400">Status</dt>
           <dd className="mt-1 text-lg capitalize text-white">{scan.status}</dd>
@@ -114,6 +114,31 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
           <dt className="text-xs uppercase tracking-wide text-slate-400">Typosquats</dt>
           <dd className="mt-1 text-lg text-white">
             {scan.typosquat_count ?? findings.filter((f) => f.type === "typosquat").length}
+          </dd>
+        </div>
+        <div className="border-l-2 border-accent/40 pl-3">
+          <dt className="text-xs uppercase tracking-wide text-slate-400">Dep confusion</dt>
+          <dd className="mt-1 text-lg text-white">
+            {scan.dep_confusion_count ??
+              findings.filter((f) => f.type === "dep_confusion").length}
+          </dd>
+        </div>
+        <div className="border-l-2 border-accent/40 pl-3">
+          <dt className="text-xs uppercase tracking-wide text-slate-400">CI/CD</dt>
+          <dd className="mt-1 text-lg text-white">
+            {scan.cicd_count ?? findings.filter((f) => f.type === "cicd").length}
+          </dd>
+        </div>
+        <div className="border-l-2 border-accent/40 pl-3">
+          <dt className="text-xs uppercase tracking-wide text-slate-400">Secrets</dt>
+          <dd className="mt-1 text-lg text-white">
+            {scan.secret_count ?? findings.filter((f) => f.type === "secret").length}
+          </dd>
+        </div>
+        <div className="border-l-2 border-accent/40 pl-3">
+          <dt className="text-xs uppercase tracking-wide text-slate-400">Licenses</dt>
+          <dd className="mt-1 text-lg text-white">
+            {scan.license_count ?? findings.filter((f) => f.type === "license").length}
           </dd>
         </div>
         <div className="border-l-2 border-accent/40 pl-3">
@@ -145,8 +170,8 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                   Security findings
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  Vulnerabilities from OSV.dev, plus typosquat lookalikes against popular package
-                  names. Critical/high transitive vulns are also surfaced on the direct parent.
+                  OSV vulns, typosquats, dependency confusion, CI/CD risks, secrets (masked), and
+                  license policy issues based on project type ({scan.project_type}).
                 </p>
                 {Object.keys(severityCounts).length > 0 ? (
                   <p className="mt-2 text-xs text-slate-400">
@@ -167,6 +192,10 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                     <option value="all">All</option>
                     <option value="vulnerability">Vulnerability</option>
                     <option value="typosquat">Typosquat</option>
+                    <option value="dep_confusion">Dep confusion</option>
+                    <option value="cicd">CI/CD</option>
+                    <option value="secret">Secret</option>
+                    <option value="license">License</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-slate-300">
@@ -211,6 +240,12 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                       <p className="mt-1 text-sm text-slate-400">
                         Package: {f.dependency_name}
                         {f.dependency_version ? `@${f.dependency_version}` : ""}
+                      </p>
+                    ) : null}
+                    {f.file_path ? (
+                      <p className="mt-1 text-sm text-slate-400">
+                        File: {f.file_path}
+                        {f.line_number ? `:${f.line_number}` : ""}
                       </p>
                     ) : null}
                     <p className="mt-2 text-sm leading-relaxed text-slate-300">{f.description}</p>

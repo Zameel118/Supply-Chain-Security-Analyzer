@@ -1,8 +1,8 @@
 """
 Celery tasks for repository scans.
 
-Phase 4 pipeline:
-  validate → parse deps → OSV vulns → typosquat check → persist findings
+Phase 7 pipeline:
+  deps → OSV → typosquat → dep confusion → CI/CD → secrets → licenses
 """
 
 from datetime import datetime, timezone
@@ -15,6 +15,10 @@ from app.models import Scan, ScanStatus, User
 from app.services.dependency_persist import persist_dependencies
 from app.services.dependency_scan import collect_dependencies
 from app.services.finding_persist import (
+    persist_cicd_findings,
+    persist_dep_confusion_findings,
+    persist_license_findings,
+    persist_secret_findings,
     persist_typosquat_findings,
     persist_vulnerability_findings,
 )
@@ -29,7 +33,7 @@ def ping() -> str:
 
 @celery_app.task(name="app.tasks.scan_tasks.run_scan", bind=True, max_retries=2)
 def run_scan(self, scan_id: str) -> dict:
-    """Background job: manifests → deps → OSV → typosquat → findings."""
+    """Background job through Phase 7 analyzers."""
     db = SessionLocal()
     try:
         scan = db.get(Scan, UUID(scan_id))
@@ -60,6 +64,14 @@ def run_scan(self, scan_id: str) -> dict:
         db.refresh(scan)
         vuln_findings = persist_vulnerability_findings(db, scan)
         typo_findings = persist_typosquat_findings(db, scan)
+        confusion_findings = persist_dep_confusion_findings(db, scan)
+        cicd_findings = persist_cicd_findings(
+            db, scan, token, owner, repo, default_branch
+        )
+        secret_findings = persist_secret_findings(
+            db, scan, token, owner, repo, default_branch
+        )
+        license_findings = persist_license_findings(db, scan)
 
         scan.status = ScanStatus.complete
         scan.completed_at = datetime.now(timezone.utc)
@@ -71,7 +83,18 @@ def run_scan(self, scan_id: str) -> dict:
             "dependency_count": len(parsed),
             "vulnerability_count": len(vuln_findings),
             "typosquat_count": len(typo_findings),
-            "finding_count": len(vuln_findings) + len(typo_findings),
+            "dep_confusion_count": len(confusion_findings),
+            "cicd_count": len(cicd_findings),
+            "secret_count": len(secret_findings),
+            "license_count": len(license_findings),
+            "finding_count": (
+                len(vuln_findings)
+                + len(typo_findings)
+                + len(confusion_findings)
+                + len(cicd_findings)
+                + len(secret_findings)
+                + len(license_findings)
+            ),
             "files": files_used,
         }
     except Exception as exc:

@@ -30,6 +30,10 @@ export type Scan = {
   finding_count?: number;
   vulnerability_count?: number;
   typosquat_count?: number;
+  dep_confusion_count?: number;
+  cicd_count?: number;
+  secret_count?: number;
+  license_count?: number;
   dependencies?: Dependency[];
   findings?: Finding[];
 };

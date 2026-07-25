@@ -10,6 +10,10 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.models import Dependency, Finding, FindingSeverity, FindingType, Scan
+from app.services.cicd_scan import CicdHit, scan_repo_cicd
+from app.services.dep_confusion import DepConfusionHit, scan_dependencies_for_confusion
+from app.services.license_scan import LicenseHit, scan_dependencies_for_licenses
+from app.services.secret_scan import SecretHit, scan_repo_secrets
 from app.services.typosquat import TyposquatHit, scan_dependencies_for_typosquats
 from app.services.vuln_scan import VulnHit, scan_dependencies_for_vulns
 
@@ -122,6 +126,142 @@ def persist_typosquat_findings(db: Session, scan: Scan) -> list[Finding]:
         finding = Finding(
             scan_id=scan.id,
             type=FindingType.typosquat,
+            severity=hit.severity,
+            title=hit.title,
+            description=hit.description,
+            remediation=hit.remediation,
+            dependency_id=hit.dependency_id,
+        )
+        db.add(finding)
+        created.append(finding)
+
+    db.commit()
+    return created
+
+
+def persist_dep_confusion_findings(db: Session, scan: Scan) -> list[Finding]:
+    """
+    If the scan has a private_package_prefix, check matching deps against
+    public registries for dependency-confusion risk.
+    """
+    db.query(Finding).filter(
+        Finding.scan_id == scan.id,
+        Finding.type == FindingType.dep_confusion,
+    ).delete()
+    db.flush()
+
+    if not scan.private_package_prefix:
+        db.commit()
+        return []
+
+    deps = db.query(Dependency).filter(Dependency.scan_id == scan.id).all()
+    hits: list[DepConfusionHit] = scan_dependencies_for_confusion(
+        deps, scan.private_package_prefix
+    )
+
+    created: list[Finding] = []
+    for hit in hits:
+        finding = Finding(
+            scan_id=scan.id,
+            type=FindingType.dep_confusion,
+            severity=hit.severity,
+            title=hit.title,
+            description=hit.description,
+            remediation=hit.remediation,
+            dependency_id=hit.dependency_id,
+        )
+        db.add(finding)
+        created.append(finding)
+
+    db.commit()
+    return created
+
+
+def persist_cicd_findings(
+    db: Session,
+    scan: Scan,
+    access_token: str,
+    owner: str,
+    repo: str,
+    default_branch: str,
+) -> list[Finding]:
+    db.query(Finding).filter(
+        Finding.scan_id == scan.id,
+        Finding.type == FindingType.cicd,
+    ).delete()
+    db.flush()
+
+    hits: list[CicdHit] = scan_repo_cicd(access_token, owner, repo, default_branch)
+    created: list[Finding] = []
+    for hit in hits:
+        finding = Finding(
+            scan_id=scan.id,
+            type=FindingType.cicd,
+            severity=hit.severity,
+            title=hit.title,
+            description=hit.description,
+            remediation=hit.remediation,
+            dependency_id=None,
+            file_path=hit.file_path,
+            line_number=hit.line_number,
+        )
+        db.add(finding)
+        created.append(finding)
+
+    db.commit()
+    return created
+
+
+def persist_secret_findings(
+    db: Session,
+    scan: Scan,
+    access_token: str,
+    owner: str,
+    repo: str,
+    default_branch: str,
+) -> list[Finding]:
+    db.query(Finding).filter(
+        Finding.scan_id == scan.id,
+        Finding.type == FindingType.secret,
+    ).delete()
+    db.flush()
+
+    hits: list[SecretHit] = scan_repo_secrets(access_token, owner, repo, default_branch)
+    created: list[Finding] = []
+    for hit in hits:
+        finding = Finding(
+            scan_id=scan.id,
+            type=FindingType.secret,
+            severity=hit.severity,
+            title=hit.title,
+            description=hit.description,
+            remediation=hit.remediation,
+            dependency_id=None,
+            file_path=hit.file_path,
+            line_number=hit.line_number,
+        )
+        db.add(finding)
+        created.append(finding)
+
+    db.commit()
+    return created
+
+
+def persist_license_findings(db: Session, scan: Scan) -> list[Finding]:
+    db.query(Finding).filter(
+        Finding.scan_id == scan.id,
+        Finding.type == FindingType.license,
+    ).delete()
+    db.flush()
+
+    deps = db.query(Dependency).filter(Dependency.scan_id == scan.id).all()
+    hits: list[LicenseHit] = scan_dependencies_for_licenses(deps, scan.project_type)
+
+    created: list[Finding] = []
+    for hit in hits:
+        finding = Finding(
+            scan_id=scan.id,
+            type=FindingType.license,
             severity=hit.severity,
             title=hit.title,
             description=hit.description,

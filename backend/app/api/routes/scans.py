@@ -46,6 +46,30 @@ def _scan_out(db: Session, scan: Scan) -> ScanOut:
         .scalar()
         or 0
     )
+    confusion_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.dep_confusion)
+        .scalar()
+        or 0
+    )
+    cicd_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.cicd)
+        .scalar()
+        or 0
+    )
+    secret_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.secret)
+        .scalar()
+        or 0
+    )
+    license_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.license)
+        .scalar()
+        or 0
+    )
     return ScanOut(
         id=scan.id,
         repo_url=scan.repo_url,
@@ -59,6 +83,10 @@ def _scan_out(db: Session, scan: Scan) -> ScanOut:
         finding_count=int(finding_count),
         vulnerability_count=int(vuln_count),
         typosquat_count=int(typo_count),
+        dep_confusion_count=int(confusion_count),
+        cicd_count=int(cicd_count),
+        secret_count=int(secret_count),
+        license_count=int(license_count),
     )
 
 
