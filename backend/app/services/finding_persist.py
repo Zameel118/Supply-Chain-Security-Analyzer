@@ -10,6 +10,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.models import Dependency, Finding, FindingSeverity, FindingType, Scan
+from app.services.typosquat import TyposquatHit, scan_dependencies_for_typosquats
 from app.services.vuln_scan import VulnHit, scan_dependencies_for_vulns
 
 
@@ -97,6 +98,38 @@ def persist_vulnerability_findings(db: Session, scan: Scan) -> list[Finding]:
         )
         db.add(propagated)
         created.append(propagated)
+
+    db.commit()
+    return created
+
+
+def persist_typosquat_findings(db: Session, scan: Scan) -> list[Finding]:
+    """Flag dependency names that look like popular packages (typosquats)."""
+    db.query(Finding).filter(
+        Finding.scan_id == scan.id,
+        Finding.type == FindingType.typosquat,
+    ).delete()
+    db.flush()
+
+    deps = db.query(Dependency).filter(Dependency.scan_id == scan.id).all()
+    # Prefer direct deps — typosquats matter most when you chose the name yourself.
+    # Still scan transitive ones at depth 0/1 to catch lockfile-pulled lookalikes.
+    candidates = [d for d in deps if d.is_direct or d.depth <= 1]
+    hits: list[TyposquatHit] = scan_dependencies_for_typosquats(candidates)
+
+    created: list[Finding] = []
+    for hit in hits:
+        finding = Finding(
+            scan_id=scan.id,
+            type=FindingType.typosquat,
+            severity=hit.severity,
+            title=hit.title,
+            description=hit.description,
+            remediation=hit.remediation,
+            dependency_id=hit.dependency_id,
+        )
+        db.add(finding)
+        created.append(finding)
 
     db.commit()
     return created

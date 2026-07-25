@@ -40,6 +40,12 @@ def _scan_out(db: Session, scan: Scan) -> ScanOut:
         .scalar()
         or 0
     )
+    typo_count = (
+        db.query(func.count(Finding.id))
+        .filter(Finding.scan_id == scan.id, Finding.type == FindingType.typosquat)
+        .scalar()
+        or 0
+    )
     return ScanOut(
         id=scan.id,
         repo_url=scan.repo_url,
@@ -52,6 +58,7 @@ def _scan_out(db: Session, scan: Scan) -> ScanOut:
         dependency_count=int(dep_count),
         finding_count=int(finding_count),
         vulnerability_count=int(vuln_count),
+        typosquat_count=int(typo_count),
     )
 
 

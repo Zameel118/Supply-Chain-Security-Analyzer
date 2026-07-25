@@ -1,8 +1,8 @@
 """
 Celery tasks for repository scans.
 
-Phase 3 pipeline:
-  validate repo → parse deps → OSV vulnerability scan → persist findings
+Phase 4 pipeline:
+  validate → parse deps → OSV vulns → typosquat check → persist findings
 """
 
 from datetime import datetime, timezone
@@ -14,7 +14,10 @@ from app.core.security import decrypt_token
 from app.models import Scan, ScanStatus, User
 from app.services.dependency_persist import persist_dependencies
 from app.services.dependency_scan import collect_dependencies
-from app.services.finding_persist import persist_vulnerability_findings
+from app.services.finding_persist import (
+    persist_typosquat_findings,
+    persist_vulnerability_findings,
+)
 from app.tasks.celery_app import celery_app
 
 
@@ -26,7 +29,7 @@ def ping() -> str:
 
 @celery_app.task(name="app.tasks.scan_tasks.run_scan", bind=True, max_retries=2)
 def run_scan(self, scan_id: str) -> dict:
-    """Background job: manifests → dependencies → OSV vulns → findings."""
+    """Background job: manifests → deps → OSV → typosquat → findings."""
     db = SessionLocal()
     try:
         scan = db.get(Scan, UUID(scan_id))
@@ -54,9 +57,9 @@ def run_scan(self, scan_id: str) -> dict:
         parsed, files_used = collect_dependencies(token, owner, repo, default_branch)
         persist_dependencies(db, scan, parsed)
 
-        # Re-load scan so findings attach to the same row after persist commit
         db.refresh(scan)
-        findings = persist_vulnerability_findings(db, scan)
+        vuln_findings = persist_vulnerability_findings(db, scan)
+        typo_findings = persist_typosquat_findings(db, scan)
 
         scan.status = ScanStatus.complete
         scan.completed_at = datetime.now(timezone.utc)
@@ -66,7 +69,9 @@ def run_scan(self, scan_id: str) -> dict:
             "scan_id": scan_id,
             "repo": f"{owner}/{repo}",
             "dependency_count": len(parsed),
-            "finding_count": len(findings),
+            "vulnerability_count": len(vuln_findings),
+            "typosquat_count": len(typo_findings),
+            "finding_count": len(vuln_findings) + len(typo_findings),
             "files": files_used,
         }
     except Exception as exc:

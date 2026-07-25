@@ -29,6 +29,7 @@ export type Scan = {
   dependency_count?: number;
   finding_count?: number;
   vulnerability_count?: number;
+  typosquat_count?: number;
   dependencies?: Dependency[];
   findings?: Finding[];
 };

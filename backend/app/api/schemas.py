@@ -35,6 +35,7 @@ class ScanOut(BaseModel):
     dependency_count: int = 0
     finding_count: int = 0
     vulnerability_count: int = 0
+    typosquat_count: int = 0
 
     model_config = {"from_attributes": True}
 

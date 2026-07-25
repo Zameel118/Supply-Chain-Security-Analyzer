@@ -21,6 +21,7 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
   const [ecosystemFilter, setEcosystemFilter] = useState<string>("all");
   const [directOnly, setDirectOnly] = useState(false);
   const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -67,9 +68,10 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
   const filteredFindings = useMemo(() => {
     return findings.filter((f) => {
       if (severityFilter !== "all" && f.severity !== severityFilter) return false;
+      if (typeFilter !== "all" && f.type !== typeFilter) return false;
       return true;
     });
-  }, [findings, severityFilter]);
+  }, [findings, severityFilter, typeFilter]);
 
   const severityCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -93,7 +95,7 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
         <h1 className="mt-2 font-display text-3xl font-semibold text-white">{scan.repo_url}</h1>
       </div>
 
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="border-l-2 border-accent/40 pl-3">
           <dt className="text-xs uppercase tracking-wide text-slate-400">Status</dt>
           <dd className="mt-1 text-lg capitalize text-white">{scan.status}</dd>
@@ -106,6 +108,12 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
           <dt className="text-xs uppercase tracking-wide text-slate-400">Vulnerabilities</dt>
           <dd className="mt-1 text-lg text-white">
             {scan.vulnerability_count ?? findings.filter((f) => f.type === "vulnerability").length}
+          </dd>
+        </div>
+        <div className="border-l-2 border-accent/40 pl-3">
+          <dt className="text-xs uppercase tracking-wide text-slate-400">Typosquats</dt>
+          <dd className="mt-1 text-lg text-white">
+            {scan.typosquat_count ?? findings.filter((f) => f.type === "typosquat").length}
           </dd>
         </div>
         <div className="border-l-2 border-accent/40 pl-3">
@@ -134,11 +142,11 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="font-display text-xl font-semibold text-white">
-                  Vulnerability findings
+                  Security findings
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  Matched via OSV.dev. Critical/high issues in transitive packages are also
-                  surfaced on the direct dependency that pulled them in.
+                  Vulnerabilities from OSV.dev, plus typosquat lookalikes against popular package
+                  names. Critical/high transitive vulns are also surfaced on the direct parent.
                 </p>
                 {Object.keys(severityCounts).length > 0 ? (
                   <p className="mt-2 text-xs text-slate-400">
@@ -148,25 +156,39 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                   </p>
                 ) : null}
               </div>
-              <label className="flex items-center gap-2 text-sm text-slate-300">
-                Severity
-                <select
-                  value={severityFilter}
-                  onChange={(e) => setSeverityFilter(e.target.value)}
-                  className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
-                >
-                  <option value="all">All</option>
-                  <option value="critical">Critical</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                  <option value="info">Info</option>
-                </select>
-              </label>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <label className="flex items-center gap-2 text-slate-300">
+                  Type
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
+                  >
+                    <option value="all">All</option>
+                    <option value="vulnerability">Vulnerability</option>
+                    <option value="typosquat">Typosquat</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-slate-300">
+                  Severity
+                  <select
+                    value={severityFilter}
+                    onChange={(e) => setSeverityFilter(e.target.value)}
+                    className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
+                  >
+                    <option value="all">All</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                    <option value="info">Info</option>
+                  </select>
+                </label>
+              </div>
             </div>
 
             {findings.length === 0 ? (
-              <p className="text-sm text-accent">No known vulnerabilities reported by OSV.dev.</p>
+              <p className="text-sm text-accent">No vulnerability or typosquat findings.</p>
             ) : (
               <ul className="space-y-3">
                 {filteredFindings.map((f) => (
