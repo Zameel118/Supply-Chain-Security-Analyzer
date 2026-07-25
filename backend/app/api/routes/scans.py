@@ -3,9 +3,10 @@ Scan + repo listing routes.
 Creating a scan enqueues a Celery job and returns the scan id immediately.
 """
 
+import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -20,9 +21,12 @@ from app.api.schemas import (
 )
 from app.core.database import get_db
 from app.core.github import list_user_repos, parse_repo_url
+from app.core.rate_limit import enforce_rate_limit
 from app.core.security import decrypt_token
 from app.models import Dependency, Finding, FindingType, Scan, ScanStatus, User
 from app.tasks.scan_tasks import run_scan
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["scans"])
 
@@ -149,8 +153,12 @@ def get_repos(user: User = Depends(get_current_user)) -> list[dict]:
     token = decrypt_token(user.access_token)
     try:
         repos = list_user_repos(token)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"GitHub API error: {exc}") from exc
+    except Exception:
+        logger.exception("GitHub list_user_repos failed for user_id=%s", user.id)
+        raise HTTPException(
+            status_code=502,
+            detail="GitHub API error — please try again, or re-authorize if scanning private repos",
+        ) from None
 
     return [
         {
@@ -167,15 +175,23 @@ def get_repos(user: User = Depends(get_current_user)) -> list[dict]:
 
 @router.post("/scans", response_model=ScanOut, status_code=status.HTTP_201_CREATED)
 def create_scan(
+    request: Request,
     body: ScanCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> ScanOut:
+    enforce_rate_limit(
+        f"rl:scans:create:{user.id}",
+        limit=10,
+        window_seconds=60,
+    )
+
     try:
         owner, repo = parse_repo_url(body.repo_url)
         normalized = f"https://github.com/{owner}/{repo}"
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        # Validation messages from parse_repo_url are safe to return
+        raise HTTPException(status_code=400, detail=str(exc)) from None
 
     scan = Scan(
         user_id=user.id,

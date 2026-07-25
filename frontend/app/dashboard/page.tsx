@@ -45,6 +45,13 @@ export default function DashboardPage() {
         Paste a public GitHub URL or pick one of your repos. We queue a background job
         and you can watch the status update live.
       </p>
+      <p className="mt-2 text-sm text-slate-500">
+        Default login can scan public repos. Need private repos?{" "}
+        <a href={getLoginUrl({ privateRepos: true })} className="text-accent hover:underline">
+          Re-authorize with private access
+        </a>
+        .
+      </p>
       <div className="mt-8">
         <ScanForm />
       </div>

@@ -10,7 +10,7 @@ from typing import Any
 
 import httpx
 
-from app.core.github import GITHUB_API, _auth_headers
+from app.core.github import GITHUB_API, auth_headers
 
 
 def list_repo_tree(
@@ -20,7 +20,7 @@ def list_repo_tree(
     with httpx.Client(timeout=60.0) as client:
         response = client.get(
             f"{GITHUB_API}/repos/{owner}/{repo}/git/trees/{default_branch}",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
             params={"recursive": "1"},
         )
         response.raise_for_status()
@@ -43,7 +43,7 @@ def fetch_file_text(
     try:
         response = http.get(
             f"{GITHUB_API}/repos/{owner}/{repo}/contents/{path}",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
         )
         if response.status_code == 404:
             return None
@@ -58,7 +58,7 @@ def fetch_file_text(
             raw = base64.b64decode(data["content"])
             return raw[:max_bytes].decode("utf-8", errors="replace")
         if data.get("download_url"):
-            raw_resp = http.get(data["download_url"], headers=_auth_headers(access_token))
+            raw_resp = http.get(data["download_url"], headers=auth_headers(access_token))
             raw_resp.raise_for_status()
             return raw_resp.content[:max_bytes].decode("utf-8", errors="replace")
         return None

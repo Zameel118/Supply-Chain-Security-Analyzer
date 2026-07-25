@@ -14,15 +14,18 @@ GITHUB_API = "https://api.github.com"
 GITHUB_AUTHORIZE = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN = "https://github.com/login/oauth/access_token"
 
+# Least privilege: public scans by default. Private repos need the broader `repo` scope.
+SCOPE_PUBLIC = "read:user public_repo"
+SCOPE_PRIVATE = "read:user repo"
 
-def github_authorize_url(state: str) -> str:
+
+def github_authorize_url(state: str, *, private_repos: bool = False) -> str:
     """Build the URL we send the user to on 'Login with GitHub'."""
     settings = get_settings()
     params = {
         "client_id": settings.github_client_id,
         "redirect_uri": settings.github_oauth_redirect_uri,
-        # repo = read private repos the user grants; public_repo not needed for public
-        "scope": "read:user repo",
+        "scope": SCOPE_PRIVATE if private_repos else SCOPE_PUBLIC,
         "state": state,
     }
     return f"{GITHUB_AUTHORIZE}?{urlencode(params)}"
@@ -49,7 +52,7 @@ def exchange_code_for_token(code: str) -> str:
     return data["access_token"]
 
 
-def _auth_headers(access_token: str) -> dict[str, str]:
+def auth_headers(access_token: str) -> dict[str, str]:
     return {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/vnd.github+json",
@@ -59,7 +62,7 @@ def _auth_headers(access_token: str) -> dict[str, str]:
 
 def fetch_github_user(access_token: str) -> dict[str, Any]:
     with httpx.Client(timeout=30.0) as client:
-        response = client.get(f"{GITHUB_API}/user", headers=_auth_headers(access_token))
+        response = client.get(f"{GITHUB_API}/user", headers=auth_headers(access_token))
         response.raise_for_status()
         return response.json()
 
@@ -69,7 +72,7 @@ def list_user_repos(access_token: str, per_page: int = 50) -> list[dict[str, Any
     with httpx.Client(timeout=30.0) as client:
         response = client.get(
             f"{GITHUB_API}/user/repos",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
             params={
                 "sort": "updated",
                 "direction": "desc",
@@ -111,7 +114,7 @@ def fetch_repo(access_token: str, owner: str, repo: str) -> dict[str, Any]:
     with httpx.Client(timeout=30.0) as client:
         response = client.get(
             f"{GITHUB_API}/repos/{owner}/{repo}",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
         )
         if response.status_code == 404:
             raise ValueError(f"Repository {owner}/{repo} not found or not accessible")

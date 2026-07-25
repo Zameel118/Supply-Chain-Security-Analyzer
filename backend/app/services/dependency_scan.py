@@ -12,7 +12,7 @@ from collections.abc import Callable
 
 import httpx
 
-from app.core.github import GITHUB_API, _auth_headers
+from app.core.github import GITHUB_API, auth_headers
 from app.services.parsers import (
     ParsedDependency,
     parse_gemfile_lock,
@@ -46,7 +46,7 @@ def fetch_file_text(access_token: str, owner: str, repo: str, path: str) -> str 
     with httpx.Client(timeout=60.0) as client:
         response = client.get(
             f"{GITHUB_API}/repos/{owner}/{repo}/contents/{path}",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
         )
         if response.status_code == 404:
             return None
@@ -57,7 +57,7 @@ def fetch_file_text(access_token: str, owner: str, repo: str, path: str) -> str 
         if data.get("encoding") == "base64" and data.get("content"):
             return base64.b64decode(data["content"]).decode("utf-8", errors="replace")
         if data.get("download_url"):
-            raw = client.get(data["download_url"], headers=_auth_headers(access_token))
+            raw = client.get(data["download_url"], headers=auth_headers(access_token))
             raw.raise_for_status()
             return raw.text
         return None
@@ -68,7 +68,7 @@ def list_manifest_paths(access_token: str, owner: str, repo: str, default_branch
     with httpx.Client(timeout=60.0) as client:
         tree_resp = client.get(
             f"{GITHUB_API}/repos/{owner}/{repo}/git/trees/{default_branch}",
-            headers=_auth_headers(access_token),
+            headers=auth_headers(access_token),
             params={"recursive": "1"},
         )
         tree_resp.raise_for_status()

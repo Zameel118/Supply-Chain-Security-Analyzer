@@ -96,8 +96,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export function getLoginUrl(): string {
-  return getApiUrl("/api/auth/github/login");
+export function getLoginUrl(options?: { privateRepos?: boolean }): string {
+  const path = options?.privateRepos
+    ? "/api/auth/github/login?private=true"
+    : "/api/auth/github/login";
+  return getApiUrl(path);
 }
 
 export async function fetchMe(): Promise<User | null> {

@@ -34,6 +34,10 @@ OAuth runs on **FastAPI** (not NextAuth). The backend must store an encrypted Gi
 access token for Celery workers to call the GitHub API during scans — keeping login
 on the API avoids syncing tokens from a separate NextAuth session.
 
+Default OAuth scope is `read:user public_repo` (public repos only). Users who need
+private-repo scans can re-authorize via `?private=true` (`repo` scope).
+`SECRET_KEY` and `TOKEN_ENCRYPTION_KEY` are required env vars (no insecure defaults).
+
 ## Quick start
 
 ### Prerequisites
