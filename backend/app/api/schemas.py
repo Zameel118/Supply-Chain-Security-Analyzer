@@ -32,8 +32,28 @@ class ScanOut(BaseModel):
     error_message: str | None
     created_at: datetime
     completed_at: datetime | None
+    dependency_count: int = 0
 
     model_config = {"from_attributes": True}
+
+
+class DependencyOut(BaseModel):
+    id: UUID
+    name: str
+    version: str | None
+    ecosystem: str
+    is_direct: bool
+    depth: int
+    parent_dependency_id: UUID | None
+
+    model_config = {"from_attributes": True}
+
+
+class ScanDetailOut(ScanOut):
+    """Scan metadata plus dependency rows (used by the results page)."""
+
+    dependencies: list[DependencyOut] = []
+
 
 
 class RepoOut(BaseModel):

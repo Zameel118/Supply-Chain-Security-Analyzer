@@ -19,7 +19,7 @@ Full-stack app that scans a GitHub repository for dependency vulnerabilities, ty
 
 - [x] **Phase 0** — Scaffolding
 - [x] **Phase 1** — GitHub OAuth + repo submission
-- [ ] Phase 2 — Dependency parsing
+- [x] **Phase 2** — Dependency parsing
 - [ ] Phase 3 — Vulnerability scanning (OSV.dev)
 - [ ] Phase 4 — Typosquatting detection
 - [ ] Phase 5 — Dependency confusion detection

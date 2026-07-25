@@ -26,6 +26,18 @@ export type Scan = {
   error_message: string | null;
   created_at: string;
   completed_at: string | null;
+  dependency_count?: number;
+  dependencies?: Dependency[];
+};
+
+export type Dependency = {
+  id: string;
+  name: string;
+  version: string | null;
+  ecosystem: string;
+  is_direct: boolean;
+  depth: number;
+  parent_dependency_id: string | null;
 };
 
 export type Repo = {
@@ -92,6 +104,10 @@ export async function createScan(input: {
 
 export async function fetchScan(id: string): Promise<Scan> {
   return apiFetch<Scan>(`/api/scans/${id}`);
+}
+
+export async function fetchScanDependencies(id: string): Promise<Dependency[]> {
+  return apiFetch<Dependency[]>(`/api/scans/${id}/dependencies`);
 }
 
 export async function fetchScans(): Promise<Scan[]> {

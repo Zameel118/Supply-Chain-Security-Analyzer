@@ -1,8 +1,7 @@
 """
 Celery tasks for repository scans.
 
-Phase 1: validate the repo is reachable via GitHub API, then mark complete.
-Later phases plug parsers / OSV / typosquat / etc. into run_scan().
+Phase 2: validate repo → discover manifests → parse deps → persist Dependency rows.
 """
 
 from datetime import datetime, timezone
@@ -12,6 +11,8 @@ from app.core.database import SessionLocal
 from app.core.github import fetch_repo, parse_repo_url
 from app.core.security import decrypt_token
 from app.models import Scan, ScanStatus, User
+from app.services.dependency_persist import persist_dependencies
+from app.services.dependency_scan import collect_dependencies
 from app.tasks.celery_app import celery_app
 
 
@@ -23,10 +24,7 @@ def ping() -> str:
 
 @celery_app.task(name="app.tasks.scan_tasks.run_scan", bind=True, max_retries=2)
 def run_scan(self, scan_id: str) -> dict:
-    """
-    Background job for one Scan row.
-    Phase 1 only confirms the repo exists; analysis arrives in Phases 2–7.
-    """
+    """Background job: fetch manifests via GitHub API and store dependencies."""
     db = SessionLocal()
     try:
         scan = db.get(Scan, UUID(scan_id))
@@ -35,6 +33,7 @@ def run_scan(self, scan_id: str) -> dict:
 
         scan.status = ScanStatus.running
         scan.error_message = None
+        scan.completed_at = None
         db.commit()
 
         user = db.get(User, scan.user_id)
@@ -47,13 +46,22 @@ def run_scan(self, scan_id: str) -> dict:
 
         token = decrypt_token(user.access_token)
         owner, repo = parse_repo_url(scan.repo_url)
-        fetch_repo(token, owner, repo)
+        repo_meta = fetch_repo(token, owner, repo)
+        default_branch = repo_meta.get("default_branch") or "main"
 
-        # Phase 1 placeholder success — Phase 2 will parse dependencies here
+        parsed, files_used = collect_dependencies(token, owner, repo, default_branch)
+        persist_dependencies(db, scan, parsed)
+
         scan.status = ScanStatus.complete
         scan.completed_at = datetime.now(timezone.utc)
         db.commit()
-        return {"status": "complete", "scan_id": scan_id, "repo": f"{owner}/{repo}"}
+        return {
+            "status": "complete",
+            "scan_id": scan_id,
+            "repo": f"{owner}/{repo}",
+            "dependency_count": len(parsed),
+            "files": files_used,
+        }
     except Exception as exc:
         db.rollback()
         scan = db.get(Scan, UUID(scan_id))
