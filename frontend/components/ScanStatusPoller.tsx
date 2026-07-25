@@ -1,33 +1,47 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Fragment } from "react";
+import { CheckpointBelt } from "@/components/CheckpointBelt";
 import { DependencyGraph } from "@/components/DependencyGraph";
 import { ExportButtons } from "@/components/ExportButtons";
+import { Panel } from "@/components/Panel";
 import { SeverityChart } from "@/components/SeverityChart";
-import { fetchScan, type Dependency, type Finding, type Scan } from "@/lib/api";
+import { SharePanel } from "@/components/SharePanel";
+import { StampBadge, severityToStamp } from "@/components/StampBadge";
+import { TrendSparkline } from "@/components/TrendSparkline";
+import { fetchScan, fetchScans, type Dependency, type Finding, type Scan } from "@/lib/api";
 import { countBySeverity } from "@/lib/risk";
 
 const TERMINAL = new Set(["complete", "failed"]);
 
-const SEVERITY_STYLES: Record<string, string> = {
-  critical: "border-red-500/60 text-red-300",
-  high: "border-orange-400/60 text-orange-200",
-  medium: "border-amber-400/50 text-amber-200",
-  low: "border-sky-400/50 text-sky-200",
-  info: "border-slate-400/40 text-slate-300",
+type Props = {
+  scanId: string;
+  /** Public report mode — hide share controls that require auth */
+  readOnly?: boolean;
+  initialScan?: Scan | null;
 };
 
-export function ScanStatusPoller({ scanId }: { scanId: string }) {
-  const [scan, setScan] = useState<Scan | null>(null);
-  const [deps, setDeps] = useState<Dependency[]>([]);
-  const [findings, setFindings] = useState<Finding[]>([]);
+export function ScanStatusPoller({ scanId, readOnly = false, initialScan = null }: Props) {
+  const [scan, setScan] = useState<Scan | null>(initialScan);
+  const [deps, setDeps] = useState<Dependency[]>(initialScan?.dependencies ?? []);
+  const [findings, setFindings] = useState<Finding[]>(initialScan?.findings ?? []);
+  const [history, setHistory] = useState<Scan[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [ecosystemFilter, setEcosystemFilter] = useState<string>("all");
+  const [severityFilter, setSeverityFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [ecosystemFilter, setEcosystemFilter] = useState("all");
   const [directOnly, setDirectOnly] = useState(false);
-  const [severityFilter, setSeverityFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   useEffect(() => {
+    if (readOnly) return;
+    fetchScans()
+      .then(setHistory)
+      .catch(() => setHistory([]));
+  }, [readOnly]);
+
+  useEffect(() => {
+    if (readOnly && initialScan) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -40,7 +54,7 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
         if (Array.isArray(data.findings)) setFindings(data.findings);
         setError(null);
         if (!TERMINAL.has(data.status)) {
-          timer = setTimeout(tick, 2000);
+          timer = setTimeout(tick, 1500);
         }
       } catch (err) {
         if (cancelled) return;
@@ -54,164 +68,159 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [scanId]);
+  }, [scanId, readOnly, initialScan]);
 
+  const severityCounts = useMemo(() => countBySeverity(findings), [findings]);
   const ecosystems = useMemo(
     () => Array.from(new Set(deps.map((d) => d.ecosystem))).sort(),
     [deps],
   );
 
-  const filteredDeps = useMemo(() => {
-    return deps.filter((d) => {
-      if (ecosystemFilter !== "all" && d.ecosystem !== ecosystemFilter) return false;
-      if (directOnly && !d.is_direct) return false;
-      return true;
-    });
-  }, [deps, ecosystemFilter, directOnly]);
+  const filteredFindings = useMemo(
+    () =>
+      findings.filter((f) => {
+        if (severityFilter !== "all" && f.severity !== severityFilter) return false;
+        if (typeFilter !== "all" && f.type !== typeFilter) return false;
+        return true;
+      }),
+    [findings, severityFilter, typeFilter],
+  );
 
-  const filteredFindings = useMemo(() => {
-    return findings.filter((f) => {
-      if (severityFilter !== "all" && f.severity !== severityFilter) return false;
-      if (typeFilter !== "all" && f.type !== typeFilter) return false;
-      return true;
-    });
-  }, [findings, severityFilter, typeFilter]);
+  const filteredDeps = useMemo(
+    () =>
+      deps.filter((d) => {
+        if (ecosystemFilter !== "all" && d.ecosystem !== ecosystemFilter) return false;
+        if (directOnly && !d.is_direct) return false;
+        return true;
+      }),
+    [deps, ecosystemFilter, directOnly],
+  );
 
-  const severityCounts = useMemo(() => countBySeverity(findings), [findings]);
+  const overallStamp = useMemo(() => {
+    if (!scan || scan.status !== "complete") return null;
+    if ((severityCounts.critical ?? 0) > 0) return "critical" as const;
+    if ((severityCounts.high ?? 0) > 0) return "high" as const;
+    if (findings.length > 0) return "medium" as const;
+    return "cleared" as const;
+  }, [scan, severityCounts, findings.length]);
 
-  const summaryCards = useMemo(() => {
-    if (!scan) return [];
-    return [
-      { label: "Dependencies", value: scan.dependency_count ?? deps.length },
-      {
-        label: "Vulnerabilities",
-        value:
-          scan.vulnerability_count ??
-          findings.filter((f) => f.type === "vulnerability").length,
-      },
-      {
-        label: "Typosquats",
-        value: scan.typosquat_count ?? findings.filter((f) => f.type === "typosquat").length,
-      },
-      {
-        label: "Dep confusion",
-        value:
-          scan.dep_confusion_count ??
-          findings.filter((f) => f.type === "dep_confusion").length,
-      },
-      {
-        label: "CI/CD",
-        value: scan.cicd_count ?? findings.filter((f) => f.type === "cicd").length,
-      },
-      {
-        label: "Secrets",
-        value: scan.secret_count ?? findings.filter((f) => f.type === "secret").length,
-      },
-      {
-        label: "Licenses",
-        value: scan.license_count ?? findings.filter((f) => f.type === "license").length,
-      },
-      {
-        label: "Total findings",
-        value: scan.finding_count ?? findings.length,
-      },
-    ];
-  }, [scan, deps.length, findings]);
+  if (error && !scan) return <p className="text-stamp-red">{error}</p>;
+  if (!scan) return <p className="font-mono text-stamp-slate">Loading berth…</p>;
 
-  if (error && !scan) {
-    return <p className="text-red-300">{error}</p>;
-  }
-  if (!scan) {
-    return <p className="text-slate-400">Loading scan…</p>;
-  }
+  const shortRepo = scan.repo_url.replace(/^https:\/\/github\.com\//i, "");
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-accent">Scan report</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold text-white">
-            {scan.repo_url.replace(/^https:\/\/github\.com\//i, "")}
+          <p className="font-display text-xs font-bold uppercase tracking-[0.18em] text-signal-teal">
+            Inspection ledger
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-wide text-manifest-100">
+            {shortRepo}
           </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Status: <span className="capitalize text-slate-200">{scan.status}</span>
-            {" · "}
-            Project: {scan.project_type}
+          <p className="mt-2 font-mono text-xs text-stamp-slate">
+            {scan.status}
+            {scan.current_phase ? ` · ${scan.current_phase}` : ""} · {scan.project_type}
             {scan.completed_at
-              ? ` · Completed ${new Date(scan.completed_at).toLocaleString()}`
+              ? ` · ${new Date(scan.completed_at).toLocaleString()}`
               : null}
           </p>
+          {scan.diff && scan.status === "complete" ? (
+            <p className="mt-2 font-mono text-xs">
+              Since last scan:{" "}
+              <span className="text-stamp-red">+{scan.diff.new_count} new</span>
+              {" · "}
+              <span className="text-signal-teal">{scan.diff.resolved_count} resolved</span>
+              {" · "}
+              <span className="text-stamp-slate">{scan.diff.known_count} known</span>
+            </p>
+          ) : null}
         </div>
-        {scan.status === "complete" ? (
-          <ExportButtons scan={scan} deps={deps} findings={findings} />
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {overallStamp ? (
+            <StampBadge severity={overallStamp} seed={scan.id} />
+          ) : null}
+          {scan.status === "complete" && !readOnly ? (
+            <ExportButtons scan={scan} deps={deps} findings={findings} />
+          ) : null}
+        </div>
       </div>
 
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {summaryCards.map((card) => (
-          <div key={card.label} className="border-l-2 border-accent/40 pl-3">
-            <dt className="text-xs uppercase tracking-wide text-slate-400">{card.label}</dt>
-            <dd className="mt-1 text-lg text-white">{card.value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      {scan.status === "queued" || scan.status === "running" ? (
-        <p className="text-sm text-amber-200">
-          Parsing manifests and running analyzers… this can take 1–2 minutes for large repos.
-        </p>
-      ) : null}
+      {(scan.status === "queued" || scan.status === "running") && (
+        <Panel label="Checkpoint belt">
+          <CheckpointBelt status={scan.status} currentPhase={scan.current_phase} />
+        </Panel>
+      )}
 
       {scan.status === "failed" ? (
-        <p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-red-200">
-          {scan.error_message ?? "Scan failed"}
+        <p className="border border-stamp-red/40 bg-stamp-red/10 px-3 py-2 text-sm text-stamp-red">
+          {scan.error_message ?? "Inspection failed"}
         </p>
       ) : null}
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Dependencies", value: scan.dependency_count ?? deps.length },
+          { label: "Vulnerabilities", value: scan.vulnerability_count ?? 0 },
+          { label: "CI / Secrets", value: (scan.cicd_count ?? 0) + (scan.secret_count ?? 0) },
+          { label: "Total findings", value: scan.finding_count ?? findings.length },
+        ].map((card) => (
+          <div
+            key={card.label}
+            className="border border-manifest-200/15 bg-ink-800/60 px-4 py-3"
+          >
+            <p className="font-display text-[10px] font-bold uppercase tracking-wide text-stamp-slate">
+              {card.label}
+            </p>
+            <p className="mt-1 font-mono text-2xl tabular-nums text-manifest-100">{card.value}</p>
+          </div>
+        ))}
+      </div>
 
       {scan.status === "complete" ? (
         <>
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div>
-              <h2 className="font-display text-xl font-semibold text-white">
-                Findings by severity
-              </h2>
-              <p className="mt-1 text-sm text-slate-400">
-                Distribution across all finding types.
-              </p>
-              <div className="mt-4 rounded-md border border-white/10 bg-white/[0.03] p-3">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Panel label="Dependency graph">
+              <DependencyGraph dependencies={deps} findings={findings} />
+            </Panel>
+            <div className="space-y-6">
+              <Panel label="Severity breakdown">
                 <SeverityChart counts={severityCounts} />
-              </div>
+              </Panel>
+              {!readOnly ? (
+                <Panel>
+                  <TrendSparkline scans={history} repoUrl={scan.repo_url} />
+                </Panel>
+              ) : null}
+              {!readOnly ? (
+                <SharePanel
+                  scan={scan}
+                  onTokenChange={(t) =>
+                    setScan((prev) => (prev ? { ...prev, public_share_token: t } : prev))
+                  }
+                />
+              ) : null}
             </div>
-            <div>
-              <h2 className="font-display text-xl font-semibold text-white">
-                Dependency graph
-              </h2>
-              <p className="mt-1 text-sm text-slate-400">
-                Parent → child edges from lockfile / manifest relationships.
-              </p>
-              <div className="mt-4">
-                <DependencyGraph dependencies={deps} findings={findings} />
-              </div>
-            </div>
-          </section>
+          </div>
 
           <section className="space-y-4">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-xl font-semibold text-white">
-                  Security findings
+                <h2 className="font-display text-xl font-bold uppercase tracking-wide text-manifest-100">
+                  Manifest ledger
                 </h2>
-                <p className="mt-1 text-sm text-slate-400">
-                  Filter by type and severity. Each row includes remediation when available.
+                <p className="mt-1 font-mono text-xs text-stamp-slate">
+                  Expand a row for description & remediation
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 text-sm">
-                <label className="flex items-center gap-2 text-slate-300">
+                <label className="flex items-center gap-2 font-sans text-manifest-200/80">
                   Type
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
+                    className="border border-manifest-200/20 bg-ink-950 px-2 py-1 font-mono text-xs text-manifest-100"
                   >
                     <option value="all">All</option>
                     <option value="vulnerability">Vulnerability</option>
@@ -222,12 +231,12 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                     <option value="license">License</option>
                   </select>
                 </label>
-                <label className="flex items-center gap-2 text-slate-300">
+                <label className="flex items-center gap-2 font-sans text-manifest-200/80">
                   Severity
                   <select
                     value={severityFilter}
                     onChange={(e) => setSeverityFilter(e.target.value)}
-                    className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
+                    className="border border-manifest-200/20 bg-ink-950 px-2 py-1 font-mono text-xs text-manifest-100"
                   >
                     <option value="all">All</option>
                     <option value="critical">Critical</option>
@@ -241,53 +250,74 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
             </div>
 
             {findings.length === 0 ? (
-              <p className="text-sm text-accent">No findings for this scan.</p>
-            ) : filteredFindings.length === 0 ? (
-              <p className="text-sm text-slate-400">No findings match the current filters.</p>
+              <div className="border border-signal-teal/30 bg-signal-teal/5 px-4 py-6">
+                <StampBadge severity="cleared" seed={`${scan.id}-clear`} />
+                <p className="mt-3 font-mono text-sm text-signal-teal">
+                  Berth cleared — no findings on this inspection.
+                </p>
+              </div>
             ) : (
-              <div className="overflow-x-auto rounded-md border border-white/10">
+              <div className="overflow-x-auto border border-manifest-200/15">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+                  <thead className="bg-ink-800 font-display text-[10px] font-bold uppercase tracking-wide text-manifest-200/60">
                     <tr>
-                      <th className="px-3 py-2 font-medium">Severity</th>
-                      <th className="px-3 py-2 font-medium">Type</th>
-                      <th className="px-3 py-2 font-medium">Title</th>
-                      <th className="px-3 py-2 font-medium">Package / file</th>
-                      <th className="px-3 py-2 font-medium">Remediation</th>
+                      <th className="px-3 py-2">Stamp</th>
+                      <th className="px-3 py-2">Type</th>
+                      <th className="px-3 py-2">Title</th>
+                      <th className="px-3 py-2">Package / file</th>
+                      <th className="px-3 py-2">Δ</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredFindings.map((f) => (
-                      <tr key={f.id} className="border-t border-white/10 align-top text-slate-200">
-                        <td className="px-3 py-2">
-                          <span
-                            className={`rounded border px-2 py-0.5 text-xs uppercase tracking-wide ${SEVERITY_STYLES[f.severity] ?? SEVERITY_STYLES.info}`}
-                          >
-                            {f.severity}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-xs uppercase tracking-wide text-slate-400">
-                          {f.type}
-                        </td>
-                        <td className="px-3 py-2">
-                          <p className="font-medium text-white">{f.title}</p>
-                          <p className="mt-1 max-w-md text-xs leading-relaxed text-slate-400">
-                            {f.description}
-                          </p>
-                        </td>
-                        <td className="px-3 py-2 text-slate-300">
-                          {f.dependency_name
-                            ? `${f.dependency_name}${f.dependency_version ? `@${f.dependency_version}` : ""}`
-                            : null}
-                          {f.file_path
-                            ? `${f.dependency_name ? " · " : ""}${f.file_path}${f.line_number ? `:${f.line_number}` : ""}`
-                            : null}
-                          {!f.dependency_name && !f.file_path ? "—" : null}
-                        </td>
-                        <td className="max-w-xs px-3 py-2 text-accent">
-                          {f.remediation ?? "—"}
-                        </td>
-                      </tr>
+                      <Fragment key={f.id}>
+                        <tr
+                          className="cursor-pointer border-t border-manifest-200/10 hover:bg-signal-teal/5"
+                          onClick={() => setExpanded((id) => (id === f.id ? null : f.id))}
+                        >
+                          <td className="px-3 py-2.5">
+                            <StampBadge
+                              severity={severityToStamp(f.severity)}
+                              seed={f.id}
+                              size="sm"
+                            />
+                          </td>
+                          <td className="px-3 py-2.5 font-mono text-[11px] uppercase text-stamp-slate">
+                            {f.type}
+                          </td>
+                          <td className="px-3 py-2.5 font-medium text-manifest-100">{f.title}</td>
+                          <td className="px-3 py-2.5 font-mono text-xs text-manifest-200/80">
+                            {f.dependency_name
+                              ? `${f.dependency_name}${f.dependency_version ? `@${f.dependency_version}` : ""}`
+                              : null}
+                            {f.file_path
+                              ? `${f.dependency_name ? " · " : ""}${f.file_path}${f.line_number ? `:${f.line_number}` : ""}`
+                              : null}
+                            {!f.dependency_name && !f.file_path ? "—" : null}
+                          </td>
+                          <td className="px-3 py-2.5 font-mono text-xs">
+                            {f.is_new ? (
+                              <span className="text-stamp-red">NEW</span>
+                            ) : (
+                              <span className="text-stamp-slate">—</span>
+                            )}
+                          </td>
+                        </tr>
+                        {expanded === f.id ? (
+                          <tr className="border-t border-manifest-200/5 bg-ink-950/80">
+                            <td colSpan={5} className="px-4 py-3">
+                              <p className="text-sm leading-relaxed text-manifest-200/80">
+                                {f.description}
+                              </p>
+                              {f.remediation ? (
+                                <p className="mt-2 font-mono text-xs text-signal-teal">
+                                  Fix: {f.remediation}
+                                </p>
+                              ) : null}
+                            </td>
+                          </tr>
+                        ) : null}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -295,21 +325,18 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
             )}
           </section>
 
-          <section className="space-y-4">
+          <section className="space-y-3">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="font-display text-xl font-semibold text-white">Dependencies</h2>
-                <p className="mt-1 text-sm text-slate-400">
-                  Parsed from manifests / lockfiles via the GitHub Contents API.
-                </p>
-              </div>
+              <h2 className="font-display text-xl font-bold uppercase tracking-wide text-manifest-100">
+                Cargo list
+              </h2>
               <div className="flex flex-wrap gap-3 text-sm">
-                <label className="flex items-center gap-2 text-slate-300">
+                <label className="flex items-center gap-2 text-manifest-200/80">
                   Ecosystem
                   <select
                     value={ecosystemFilter}
                     onChange={(e) => setEcosystemFilter(e.target.value)}
-                    className="rounded-md border border-white/15 bg-ink/60 px-2 py-1 text-white"
+                    className="border border-manifest-200/20 bg-ink-950 px-2 py-1 font-mono text-xs"
                   >
                     <option value="all">All</option>
                     {ecosystems.map((eco) => (
@@ -319,7 +346,7 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                     ))}
                   </select>
                 </label>
-                <label className="flex items-center gap-2 text-slate-300">
+                <label className="flex items-center gap-2 text-manifest-200/80">
                   <input
                     type="checkbox"
                     checked={directOnly}
@@ -329,35 +356,32 @@ export function ScanStatusPoller({ scanId }: { scanId: string }) {
                 </label>
               </div>
             </div>
-
-            {deps.length === 0 ? (
-              <p className="text-sm text-slate-400">No supported manifests found.</p>
-            ) : (
-              <div className="overflow-x-auto rounded-md border border-white/10">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
-                    <tr>
-                      <th className="px-3 py-2 font-medium">Name</th>
-                      <th className="px-3 py-2 font-medium">Version</th>
-                      <th className="px-3 py-2 font-medium">Ecosystem</th>
-                      <th className="px-3 py-2 font-medium">Depth</th>
-                      <th className="px-3 py-2 font-medium">Direct</th>
+            <div className="overflow-x-auto border border-manifest-200/15">
+              <table className="min-w-full text-left text-sm">
+                <thead className="bg-ink-800 font-display text-[10px] font-bold uppercase tracking-wide text-manifest-200/60">
+                  <tr>
+                    <th className="px-3 py-2">Name</th>
+                    <th className="px-3 py-2">Version</th>
+                    <th className="px-3 py-2">Ecosystem</th>
+                    <th className="px-3 py-2">Depth</th>
+                    <th className="px-3 py-2">Direct</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDeps.map((dep) => (
+                    <tr key={dep.id} className="border-t border-manifest-200/10">
+                      <td className="px-3 py-2 font-mono text-xs text-manifest-100">{dep.name}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{dep.version ?? "—"}</td>
+                      <td className="px-3 py-2 font-mono text-xs text-stamp-slate">{dep.ecosystem}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{dep.depth}</td>
+                      <td className="px-3 py-2 font-mono text-xs">
+                        {dep.is_direct ? "yes" : "no"}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDeps.map((dep) => (
-                      <tr key={dep.id} className="border-t border-white/10 text-slate-200">
-                        <td className="px-3 py-2 font-medium text-white">{dep.name}</td>
-                        <td className="px-3 py-2">{dep.version ?? "—"}</td>
-                        <td className="px-3 py-2">{dep.ecosystem}</td>
-                        <td className="px-3 py-2">{dep.depth}</td>
-                        <td className="px-3 py-2">{dep.is_direct ? "yes" : "no"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </>
       ) : null}

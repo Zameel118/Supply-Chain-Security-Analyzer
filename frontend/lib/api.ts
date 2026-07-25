@@ -1,6 +1,5 @@
 /**
- * Shared helpers for calling the FastAPI backend.
- * credentials: "include" sends the httpOnly session cookie on every request.
+ * Quaywatch API client.
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -17,6 +16,15 @@ export type User = {
   avatar_url: string | null;
 };
 
+export type ScanDiff = {
+  previous_scan_id: string | null;
+  new_count: number;
+  resolved_count: number;
+  known_count: number;
+  new_finding_ids: string[];
+  resolved_titles: string[];
+};
+
 export type Scan = {
   id: string;
   repo_url: string;
@@ -24,6 +32,8 @@ export type Scan = {
   private_package_prefix: string | null;
   project_type: string;
   error_message: string | null;
+  current_phase?: string | null;
+  public_share_token?: string | null;
   created_at: string;
   completed_at: string | null;
   dependency_count?: number;
@@ -36,6 +46,7 @@ export type Scan = {
   license_count?: number;
   dependencies?: Dependency[];
   findings?: Finding[];
+  diff?: ScanDiff | null;
 };
 
 export type Dependency = {
@@ -60,6 +71,7 @@ export type Finding = {
   line_number: number | null;
   dependency_name?: string | null;
   dependency_version?: string | null;
+  is_new?: boolean;
 };
 
 export type Repo = {
@@ -69,6 +81,16 @@ export type Repo = {
   description: string | null;
   language: string | null;
   updated_at: string | null;
+};
+
+export type ActivityEvent = {
+  id: string;
+  kind: string;
+  message: string;
+  repo_url: string | null;
+  scan_id: string | null;
+  status: string | null;
+  created_at: string;
 };
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
@@ -131,10 +153,32 @@ export async function fetchScan(id: string): Promise<Scan> {
   return apiFetch<Scan>(`/api/scans/${id}`);
 }
 
-export async function fetchScanDependencies(id: string): Promise<Dependency[]> {
-  return apiFetch<Dependency[]>(`/api/scans/${id}/dependencies`);
+export async function fetchPublicReport(token: string): Promise<Scan> {
+  return apiFetch<Scan>(`/api/public/reports/${token}`);
 }
 
 export async function fetchScans(): Promise<Scan[]> {
   return apiFetch<Scan[]>("/api/scans");
+}
+
+export async function fetchActivity(): Promise<ActivityEvent[]> {
+  return apiFetch<ActivityEvent[]>("/api/activity");
+}
+
+export async function enableShare(scanId: string): Promise<{
+  public_share_token: string | null;
+  public_url: string | null;
+}> {
+  return apiFetch(`/api/scans/${scanId}/share`, { method: "POST" });
+}
+
+export async function revokeShare(scanId: string): Promise<{
+  public_share_token: string | null;
+  public_url: string | null;
+}> {
+  return apiFetch(`/api/scans/${scanId}/share`, { method: "DELETE" });
+}
+
+export function badgeSvgUrl(scanId: string): string {
+  return getApiUrl(`/api/scans/${scanId}/badge.svg`);
 }

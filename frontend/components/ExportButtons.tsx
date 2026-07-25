@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/Button";
 import type { Dependency, Finding, Scan } from "@/lib/api";
 import { downloadJsonReport, openPdfReport } from "@/lib/exportReport";
 
@@ -13,37 +14,35 @@ type Props = {
 export function ExportButtons({ scan, deps, findings }: Props) {
   const [error, setError] = useState<string | null>(null);
 
-  function onJson() {
-    setError(null);
-    downloadJsonReport(scan, deps, findings);
-  }
-
-  function onPdf() {
-    setError(null);
-    try {
-      openPdfReport(scan, deps, findings);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "PDF export failed");
-    }
-  }
-
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
+      <Button
+        variant="secondary"
         type="button"
-        onClick={onJson}
-        className="rounded-md border border-white/20 px-3 py-1.5 text-sm text-slate-200 hover:border-accent hover:text-accent"
+        className="!py-1.5 !text-xs"
+        onClick={() => {
+          setError(null);
+          downloadJsonReport(scan, deps, findings);
+        }}
       >
         Export JSON
-      </button>
-      <button
+      </Button>
+      <Button
+        variant="secondary"
         type="button"
-        onClick={onPdf}
-        className="rounded-md border border-white/20 px-3 py-1.5 text-sm text-slate-200 hover:border-accent hover:text-accent"
+        className="!py-1.5 !text-xs"
+        onClick={() => {
+          setError(null);
+          try {
+            openPdfReport(scan, deps, findings);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "PDF export failed");
+          }
+        }}
       >
         Export PDF
-      </button>
-      {error ? <span className="text-xs text-red-300">{error}</span> : null}
+      </Button>
+      {error ? <span className="font-mono text-[10px] text-stamp-red">{error}</span> : null}
     </div>
   );
 }

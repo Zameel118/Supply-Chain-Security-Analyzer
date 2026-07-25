@@ -1,13 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/Button";
+import { LiveFeed } from "@/components/LiveFeed";
 import { ScanForm } from "@/components/ScanForm";
-import { fetchMe, getLoginUrl, type User } from "@/lib/api";
+import { StatusBoard } from "@/components/StatusBoard";
+import { fetchMe, fetchScans, getLoginUrl, type Scan, type User } from "@/lib/api";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,6 +24,7 @@ export default function DashboardPage() {
           return;
         }
         setUser(u);
+        return fetchScans().then(setScans);
       })
       .catch(() => {
         window.location.href = getLoginUrl();
@@ -25,36 +32,84 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [router]);
 
+  useEffect(() => {
+    if (!user) return;
+    const t = setInterval(() => {
+      fetchScans()
+        .then(setScans)
+        .catch(() => undefined);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [user]);
+
   if (loading) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-16 text-slate-400">Checking session…</main>
+      <AppShell>
+        <p className="font-mono text-stamp-slate">Checking session…</p>
+      </AppShell>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
+
+  const latest = scans[0];
+  const running = scans.filter((s) => s.status === "running" || s.status === "queued");
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <p className="text-sm uppercase tracking-[0.18em] text-accent">Dashboard</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold text-white">
-        Scan a repository
-      </h1>
-      <p className="mt-3 max-w-2xl text-slate-300">
-        Paste a public GitHub URL or pick one of your repos. We queue a background job
-        and you can watch the status update live.
-      </p>
-      <p className="mt-2 text-sm text-slate-500">
-        Default login can scan public repos. Need private repos?{" "}
-        <a href={getLoginUrl({ privateRepos: true })} className="text-accent hover:underline">
-          Re-authorize with private access
-        </a>
-        .
-      </p>
-      <div className="mt-8">
-        <ScanForm />
+    <AppShell>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-teal">
+            Ops console · channel open
+          </p>
+          <h1 className="mt-1 font-display text-2xl font-bold uppercase tracking-wide text-manifest-100 sm:text-3xl">
+            Welcome aboard,{" "}
+            <span className="font-mono normal-case tracking-normal text-signal-teal">
+              {user.username}
+            </span>
+          </h1>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button href="#inspect" className="!py-2 !text-xs">
+            + New inspection
+          </Button>
+          {latest ? (
+            <Button variant="secondary" href={`/scans/${latest.id}`} className="!py-2 !text-xs">
+              Latest berth →
+            </Button>
+          ) : null}
+        </div>
       </div>
-    </main>
+
+      {running.length > 0 ? (
+        <div className="mb-4 flex flex-wrap items-center gap-2 border border-stamp-amber/30 bg-stamp-amber/10 px-3 py-2">
+          <span className="h-2 w-2 rounded-full bg-stamp-amber quay-pulse" />
+          <p className="font-mono text-xs text-stamp-amber">
+            {running.length} inspection{running.length === 1 ? "" : "s"} on the belt
+          </p>
+          {running.slice(0, 2).map((s) => (
+            <Link
+              key={s.id}
+              href={`/scans/${s.id}`}
+              className="font-mono text-[11px] text-manifest-100 underline-offset-2 hover:text-signal-teal hover:underline"
+            >
+              {s.repo_url.replace(/^https:\/\/github\.com\//i, "")}
+              {s.current_phase ? ` · ${s.current_phase}` : ""}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mb-5">
+        <StatusBoard scans={scans} />
+      </div>
+
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <ScanForm />
+        <aside className="xl:sticky xl:top-4">
+          <LiveFeed />
+        </aside>
+      </div>
+    </AppShell>
   );
 }

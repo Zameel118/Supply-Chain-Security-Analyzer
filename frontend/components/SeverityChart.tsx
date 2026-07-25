@@ -10,11 +10,37 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { SEVERITY_COLORS, SEVERITY_ORDER } from "@/lib/risk";
+import { SEVERITY_ORDER } from "@/lib/risk";
+
+const STAMP_FILL: Record<string, string> = {
+  critical: "#E14B4B",
+  high: "#E14B4B",
+  medium: "#F0A93F",
+  low: "#7C8CA6",
+  info: "#7C8CA6",
+};
 
 type Props = {
   counts: Record<string, number>;
 };
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="border border-manifest-200/20 bg-ink-950 px-3 py-2 font-mono text-xs text-manifest-100">
+      <p className="uppercase tracking-wide text-stamp-slate">{label}</p>
+      <p className="mt-0.5 text-signal-teal">{payload[0].value} findings</p>
+    </div>
+  );
+}
 
 export function SeverityChart({ counts }: Props) {
   const data = SEVERITY_ORDER.filter((s) => (counts[s] ?? 0) > 0).map((s) => ({
@@ -24,7 +50,7 @@ export function SeverityChart({ counts }: Props) {
 
   if (data.length === 0) {
     return (
-      <p className="flex h-48 items-center justify-center text-sm text-slate-400">
+      <p className="flex h-48 items-center justify-center font-mono text-sm text-stamp-slate">
         No findings to chart.
       </p>
     );
@@ -34,31 +60,23 @@ export function SeverityChart({ counts }: Props) {
     <div className="h-48 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(27,46,72,0.9)" />
           <XAxis
             dataKey="severity"
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
-            axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
+            tick={{ fill: "rgba(232,226,208,0.6)", fontSize: 11, fontFamily: "var(--font-plex-mono)" }}
+            axisLine={{ stroke: "rgba(232,226,208,0.15)" }}
+            tickLine={false}
           />
           <YAxis
             allowDecimals={false}
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
-            axisLine={{ stroke: "rgba(255,255,255,0.15)" }}
+            tick={{ fill: "rgba(232,226,208,0.6)", fontSize: 11, fontFamily: "var(--font-plex-mono)" }}
+            axisLine={{ stroke: "rgba(232,226,208,0.15)" }}
+            tickLine={false}
           />
-          <Tooltip
-            contentStyle={{
-              background: "#0f1c2e",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 6,
-              color: "#e8eef7",
-            }}
-          />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+          <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(45,212,191,0.06)" }} />
+          <Bar dataKey="count" radius={[2, 2, 0, 0]}>
             {data.map((entry) => (
-              <Cell
-                key={entry.severity}
-                fill={SEVERITY_COLORS[entry.severity] ?? SEVERITY_COLORS.info}
-              />
+              <Cell key={entry.severity} fill={STAMP_FILL[entry.severity] ?? "#7C8CA6"} />
             ))}
           </Bar>
         </BarChart>

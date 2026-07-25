@@ -7,20 +7,29 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: "#0f1c2e",
-        slate: {
-          panel: "#1a2b42",
+        ink: {
+          950: "#0B1420",
+          800: "#13233A",
+          700: "#1B2E48",
         },
-        accent: {
-          DEFAULT: "#2dd4bf",
-          dim: "#14b8a6",
+        manifest: {
+          100: "#E8E2D0",
+          200: "#DCD4BC",
         },
-        warn: "#f59e0b",
-        danger: "#ef4444",
+        signal: {
+          teal: "#2DD4BF",
+          tealDim: "#14B8A6",
+        },
+        stamp: {
+          amber: "#F0A93F",
+          red: "#E14B4B",
+          slate: "#7C8CA6",
+        },
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-plex-condensed)", "sans-serif"],
+        sans: ["var(--font-plex-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-plex-mono)", "monospace"],
       },
     },
   },

@@ -80,6 +80,12 @@ class Scan(Base):
     private_package_prefix: Mapped[str | None] = mapped_column(String(255), nullable=True)
     project_type: Mapped[str] = mapped_column(String(32), default="commercial", nullable=False)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Checkpoint belt progress: parsing | vulnerabilities | typosquats | …
+    current_phase: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # Nullable share token for unauthenticated public report links
+    public_share_token: Mapped[str | None] = mapped_column(
+        String(64), unique=True, nullable=True, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

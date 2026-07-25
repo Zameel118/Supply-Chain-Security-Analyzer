@@ -1,22 +1,41 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
-import { NavBar } from "@/components/NavBar";
+import {
+  IBM_Plex_Mono,
+  IBM_Plex_Sans,
+  IBM_Plex_Sans_Condensed,
+} from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
-  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
 });
 
-const sans = Source_Sans_3({
+const plexCondensed = IBM_Plex_Sans_Condensed({
   subsets: ["latin"],
-  variable: "--font-sans",
+  weight: ["500", "600", "700"],
+  variable: "--font-plex-condensed",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
 });
 
 export const metadata: Metadata = {
-  title: "Supply Chain Security Analyzer",
+  title: {
+    default: "Quaywatch",
+    template: "%s · Quaywatch",
+  },
   description:
-    "Scan GitHub repositories for dependency vulnerabilities, typosquatting, CI/CD risks, secrets, and license issues.",
+    "Harbor watch for your software supply chain — dependency vulns, typosquats, CI/CD, secrets, and licenses.",
+  applicationName: "Quaywatch",
+  icons: {
+    icon: "/quaywatch-icon.png",
+    apple: "/quaywatch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,8 +45,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${sans.variable} font-sans antialiased`}>
-        <NavBar />
+      <body
+        className={`${plexSans.variable} ${plexCondensed.variable} ${plexMono.variable} font-sans antialiased`}
+      >
         {children}
       </body>
     </html>

@@ -1,5 +1,5 @@
 """
-Shared Pydantic response/request shapes for the API.
+Shared Pydantic response/request shapes for the Quaywatch API.
 """
 
 from datetime import datetime
@@ -23,6 +23,15 @@ class ScanCreate(BaseModel):
     project_type: str = Field(default="commercial", pattern="^(commercial|open-source)$")
 
 
+class ScanDiffOut(BaseModel):
+    previous_scan_id: UUID | None = None
+    new_count: int = 0
+    resolved_count: int = 0
+    known_count: int = 0
+    new_finding_ids: list[UUID] = []
+    resolved_titles: list[str] = []
+
+
 class ScanOut(BaseModel):
     id: UUID
     repo_url: str
@@ -30,6 +39,8 @@ class ScanOut(BaseModel):
     private_package_prefix: str | None
     project_type: str
     error_message: str | None
+    current_phase: str | None = None
+    public_share_token: str | None = None
     created_at: datetime
     completed_at: datetime | None
     dependency_count: int = 0
@@ -68,6 +79,7 @@ class FindingOut(BaseModel):
     line_number: int | None
     dependency_name: str | None = None
     dependency_version: str | None = None
+    is_new: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -77,7 +89,7 @@ class ScanDetailOut(ScanOut):
 
     dependencies: list[DependencyOut] = []
     findings: list[FindingOut] = []
-
+    diff: ScanDiffOut | None = None
 
 
 class RepoOut(BaseModel):
@@ -87,3 +99,18 @@ class RepoOut(BaseModel):
     description: str | None = None
     language: str | None = None
     updated_at: str | None = None
+
+
+class ActivityEventOut(BaseModel):
+    id: str
+    kind: str
+    message: str
+    repo_url: str | None = None
+    scan_id: UUID | None = None
+    status: str | None = None
+    created_at: datetime
+
+
+class ShareToggleOut(BaseModel):
+    public_share_token: str | None
+    public_url: str | None

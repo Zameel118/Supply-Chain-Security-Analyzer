@@ -1,3 +1,4 @@
+import { AppShell } from "@/components/AppShell";
 import { ScanStatusPoller } from "@/components/ScanStatusPoller";
 
 export default async function ScanPage({
@@ -7,8 +8,8 @@ export default async function ScanPage({
 }) {
   const { id } = await params;
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <AppShell>
       <ScanStatusPoller scanId={id} />
-    </main>
+    </AppShell>
   );
 }

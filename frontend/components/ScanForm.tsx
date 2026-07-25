@@ -2,11 +2,14 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/Button";
+import { Panel } from "@/components/Panel";
 import { ScanHistory } from "@/components/ScanHistory";
 import {
   createScan,
   fetchRepos,
   fetchScans,
+  getLoginUrl,
   type Repo,
   type Scan,
 } from "@/lib/api";
@@ -58,105 +61,130 @@ export function ScanForm() {
     }
   }
 
+  const inputClass =
+    "w-full border border-manifest-200/20 bg-ink-950 px-3 py-2.5 font-mono text-sm text-manifest-100 outline-none focus:border-signal-teal";
+
   return (
-    <div className="space-y-10">
-      <form onSubmit={onSubmit} className="space-y-5">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300" htmlFor="repo-url">
-            GitHub repository URL
-          </label>
-          <input
-            id="repo-url"
-            value={repoUrl}
-            onChange={(e) => setRepoUrl(e.target.value)}
-            placeholder="https://github.com/owner/repo"
-            required
-            className="w-full rounded-md border border-white/15 bg-ink/60 px-3 py-2.5 text-white outline-none ring-accent focus:ring-2"
-          />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300" htmlFor="repo-pick">
-            Or pick one of your repos
-          </label>
-          <select
-            id="repo-pick"
-            disabled={loadingRepos}
-            defaultValue=""
-            onChange={(e) => {
-              if (e.target.value) setRepoUrl(e.target.value);
-            }}
-            className="w-full rounded-md border border-white/15 bg-ink/60 px-3 py-2.5 text-white outline-none ring-accent focus:ring-2"
-          >
-            <option value="">
-              {loadingRepos ? "Loading your repositories…" : "Select a repository"}
-            </option>
-            {repoOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-8">
+      <Panel label="New inspection" id="inspect">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300" htmlFor="project-type">
-              Project type
-            </label>
-            <select
-              id="project-type"
-              value={projectType}
-              onChange={(e) => setProjectType(e.target.value)}
-              className="w-full rounded-md border border-white/15 bg-ink/60 px-3 py-2.5 text-white outline-none ring-accent focus:ring-2"
-            >
-              <option value="commercial">Commercial</option>
-              <option value="open-source">Open source</option>
-            </select>
-            <p className="mt-1.5 text-xs text-slate-500">
-              Commercial flags GPL/AGPL for review; open-source allows copyleft.
-            </p>
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300" htmlFor="prefix">
-              Private package prefix (optional)
+            <label className="mb-1.5 block font-sans text-sm text-manifest-200/80" htmlFor="repo-url">
+              GitHub repository URL
             </label>
             <input
-              id="prefix"
-              value={prefix}
-              onChange={(e) => setPrefix(e.target.value)}
-              placeholder="@mycompany/"
-              className="w-full rounded-md border border-white/15 bg-ink/60 px-3 py-2.5 text-white outline-none ring-accent focus:ring-2"
+              id="repo-url"
+              value={repoUrl}
+              onChange={(e) => setRepoUrl(e.target.value)}
+              placeholder="https://github.com/owner/repo"
+              required
+              className={inputClass}
             />
-            <p className="mt-1.5 text-xs text-slate-500">
-              Used for dependency-confusion checks. Example: <code>@mycompany/</code> or{" "}
-              <code>acme-</code>. Leave blank to skip.
-            </p>
           </div>
-        </div>
 
-        {error ? (
-          <p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-red-200">
-            {error}
-          </p>
-        ) : null}
+          <div>
+            <label className="mb-1.5 block font-sans text-sm text-manifest-200/80" htmlFor="repo-pick">
+              Or pick from your quay
+            </label>
+            <select
+              id="repo-pick"
+              disabled={loadingRepos}
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) setRepoUrl(e.target.value);
+              }}
+              className={inputClass}
+            >
+              <option value="">
+                {loadingRepos ? "Loading repositories…" : "Select a repository"}
+              </option>
+              {repoOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <button
-          type="submit"
-          disabled={submitting || !repoUrl.trim()}
-          className="rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {submitting ? "Starting scan…" : "Start scan"}
-        </button>
-      </form>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label
+                className="mb-1.5 block font-sans text-sm text-manifest-200/80"
+                htmlFor="project-type"
+              >
+                Project type
+              </label>
+              <select
+                id="project-type"
+                value={projectType}
+                onChange={(e) => setProjectType(e.target.value)}
+                className={inputClass}
+              >
+                <option value="commercial">Commercial</option>
+                <option value="open-source">Open source</option>
+              </select>
+              <p className="mt-1.5 font-mono text-[11px] text-stamp-slate">
+                Commercial flags GPL/AGPL for review.
+              </p>
+            </div>
+            <div>
+              <label className="mb-1.5 block font-sans text-sm text-manifest-200/80" htmlFor="prefix">
+                Private package prefix
+              </label>
+              <input
+                id="prefix"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                placeholder="@mycompany/"
+                className={inputClass}
+              />
+              <p className="mt-1.5 font-mono text-[11px] text-stamp-slate">
+                Optional · dependency-confusion checks
+              </p>
+            </div>
+          </div>
 
-      <section>
-        <h2 className="font-display text-xl font-semibold text-white">Scan history</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Your last 50 scans with dependency and finding counts.
+          {error ? (
+            <p className="border border-stamp-red/40 bg-stamp-red/10 px-3 py-2 text-sm text-stamp-red">
+              {error}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" disabled={submitting || !repoUrl.trim()}>
+              {submitting ? "Queuing…" : "Start inspection"}
+            </Button>
+            <a
+              href={getLoginUrl({ privateRepos: true })}
+              className="font-mono text-xs text-stamp-slate hover:text-signal-teal"
+            >
+              Need private repos? Re-authorize →
+            </a>
+          </div>
+        </form>
+      </Panel>
+
+      <section id="history">
+        <h2 className="font-display text-lg font-bold uppercase tracking-wide text-manifest-100">
+          Manifest history
+        </h2>
+        <p className="mt-1 font-mono text-xs text-stamp-slate">
+          Last 50 berths · click a row to open the ledger
         </p>
-        <ScanHistory scans={history} />
+        <div className="mt-3">
+          <ScanHistory scans={history} />
+        </div>
       </section>
     </div>
   );
+}
+
+export function useScanHistory(): Scan[] {
+  const [history, setHistory] = useState<Scan[]>([]);
+  useEffect(() => {
+    fetchScans()
+      .then(setHistory)
+      .catch(() => setHistory([]));
+  }, []);
+  return history;
 }

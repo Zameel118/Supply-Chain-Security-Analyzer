@@ -1,0 +1,102 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { StampBadge } from "@/components/StampBadge";
+
+const LINES = [
+  { t: "12:04:01", msg: "belt · parsing lockfile", ok: true },
+  { t: "12:04:08", msg: "osv · 142 packages queried", ok: true },
+  { t: "12:04:11", msg: "FLAG · pyyaml@5.3.1 high", ok: false },
+  { t: "12:04:14", msg: "typosquat · clear", ok: true },
+  { t: "12:04:19", msg: "secrets · 0 matches", ok: true },
+  { t: "12:04:22", msg: "license · review GPL hold", ok: false },
+  { t: "12:04:25", msg: "berth CLEARED · report ready", ok: true },
+];
+
+/**
+ * Animated ops console that fills the empty hero right side.
+ */
+export function HeroConsole() {
+  const [visible, setVisible] = useState(1);
+  const [clock, setClock] = useState("--:--:--");
+
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setVisible(LINES.length);
+      return;
+    }
+    const id = setInterval(() => {
+      setVisible((n) => (n >= LINES.length ? 1 : n + 1));
+    }, 1400);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const tick = () => setClock(new Date().toLocaleTimeString());
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const shown = LINES.slice(0, visible);
+
+  return (
+    <div className="relative overflow-hidden border border-signal-teal/25 bg-ink-950/90 shadow-[0_0_60px_-12px_rgba(45,212,191,0.35)] quay-scanlines">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-stamp-amber/10 blur-3xl" />
+
+      <div className="flex items-center justify-between border-b border-manifest-200/10 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
+          <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-signal-teal">
+            Live berth · demo
+          </span>
+        </div>
+        <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
+      </div>
+
+      <div className="grid grid-cols-[1fr_auto] gap-0">
+        <div className="relative flex min-h-[220px] items-center justify-center border-r border-manifest-200/10 p-6">
+          <div className="quay-radar absolute inset-6 opacity-80" aria-hidden />
+          <div className="relative z-10 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-stamp-slate">
+              Threat sweep
+            </p>
+            <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-signal-teal quay-count-glow">
+              07
+            </p>
+            <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+          </div>
+        </div>
+
+        <div className="w-[9.5rem] space-y-2 p-3 sm:w-44">
+          <StampBadge severity="cleared" seed="hero-ok" size="sm" />
+          <StampBadge severity="high" seed="hero-hi" size="sm" />
+          <StampBadge severity="medium" seed="hero-md" size="sm" />
+          <div className="border border-manifest-200/10 bg-ink-800/80 px-2 py-2">
+            <p className="font-mono text-[9px] uppercase text-stamp-slate">Latency</p>
+            <p className="font-mono text-sm tabular-nums text-manifest-100">1.2s</p>
+          </div>
+        </div>
+      </div>
+
+      <ul className="max-h-40 space-y-1 border-t border-manifest-200/10 px-3 py-2.5 font-mono text-[11px]">
+        {shown.map((line, i) => (
+          <li
+            key={`${line.t}-${i}`}
+            className={`flex gap-2 quay-feed-item ${line.ok ? "text-manifest-200/80" : "text-stamp-amber"}`}
+          >
+            <span className="shrink-0 text-stamp-slate">{line.t}</span>
+            <span className="truncate">{line.msg}</span>
+          </li>
+        ))}
+        <li className="font-mono text-signal-teal/80">
+          ▍<span className="quay-cursor-blink">_</span>
+        </li>
+      </ul>
+    </div>
+  );
+}

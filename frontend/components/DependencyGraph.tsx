@@ -11,9 +11,18 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import type { Dependency, Finding } from "@/lib/api";
-import { riskForDependency, SEVERITY_COLORS } from "@/lib/risk";
+import { riskForDependency } from "@/lib/risk";
 
 const MAX_NODES = 80;
+
+const QUAY_COLORS: Record<string, string> = {
+  critical: "#E14B4B",
+  high: "#E14B4B",
+  medium: "#F0A93F",
+  low: "#7C8CA6",
+  info: "#7C8CA6",
+  none: "#2DD4BF",
+};
 
 type Props = {
   dependencies: Dependency[];
@@ -22,7 +31,6 @@ type Props = {
 
 function pickGraphDeps(deps: Dependency[], findings: Finding[]): Dependency[] {
   if (deps.length <= MAX_NODES) return deps;
-
   const keep = new Set<string>();
   for (const d of deps) {
     if (d.is_direct || d.depth <= 1) keep.add(d.id);
@@ -38,7 +46,6 @@ function pickGraphDeps(deps: Dependency[], findings: Finding[]): Dependency[] {
       cur = byId.get(cur.parent_dependency_id);
     }
   }
-
   const selected = deps.filter((d) => keep.has(d.id));
   if (selected.length <= MAX_NODES) return selected;
   return selected
@@ -46,10 +53,7 @@ function pickGraphDeps(deps: Dependency[], findings: Finding[]): Dependency[] {
     .slice(0, MAX_NODES);
 }
 
-function layoutNodes(
-  deps: Dependency[],
-  findings: Finding[],
-): { nodes: Node[]; edges: Edge[] } {
+function layoutNodes(deps: Dependency[], findings: Finding[]): { nodes: Node[]; edges: Edge[] } {
   const byDepth = new Map<number, Dependency[]>();
   for (const d of deps) {
     const list = byDepth.get(d.depth) ?? [];
@@ -62,22 +66,23 @@ function layoutNodes(
     list.sort((a, b) => a.name.localeCompare(b.name));
     list.forEach((dep, i) => {
       const risk = riskForDependency(dep.id, findings);
-      const color = risk ? SEVERITY_COLORS[risk] : SEVERITY_COLORS.none;
+      const color = risk ? QUAY_COLORS[risk] : QUAY_COLORS.none;
       nodes.push({
         id: dep.id,
-        position: { x: i * 200, y: depth * 110 },
+        position: { x: i * 190, y: depth * 100 },
         data: {
           label: `${dep.name}${dep.version ? `@${dep.version}` : ""}`,
           riskColor: color,
         },
         style: {
-          background: "#0f1c2e",
-          color: "#e8eef7",
+          background: "#0B1420",
+          color: "#E8E2D0",
           border: `2px solid ${color}`,
-          borderRadius: 8,
-          fontSize: 11,
+          borderRadius: 2,
+          fontSize: 10,
+          fontFamily: "var(--font-plex-mono)",
           padding: 8,
-          width: 170,
+          width: 160,
         },
       });
     });
@@ -90,7 +95,7 @@ function layoutNodes(
       id: `${d.parent_dependency_id}->${d.id}`,
       source: d.parent_dependency_id as string,
       target: d.id,
-      style: { stroke: "rgba(148,163,184,0.45)" },
+      style: { stroke: "rgba(45,212,191,0.35)" },
     }));
 
   return { nodes, edges };
@@ -110,12 +115,11 @@ export function DependencyGraph({ dependencies, findings }: Props) {
   );
 
   if (dependencies.length === 0) {
-    return <p className="text-sm text-slate-400">No dependencies to graph.</p>;
+    return <p className="font-mono text-sm text-stamp-slate">No dependencies to graph.</p>;
   }
-
   if (!mounted) {
     return (
-      <p className="flex h-[420px] items-center justify-center rounded-md border border-white/10 text-sm text-slate-400">
+      <p className="flex h-[380px] items-center justify-center border border-manifest-200/10 font-mono text-sm text-stamp-slate">
         Loading graph…
       </p>
     );
@@ -123,14 +127,13 @@ export function DependencyGraph({ dependencies, findings }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-slate-500">
-        Border color = highest finding severity on that package
+      <p className="font-mono text-[11px] text-stamp-slate">
+        Node border = highest stamp severity
         {subset.length < dependencies.length
-          ? ` · showing ${subset.length} of ${dependencies.length} nodes`
+          ? ` · ${subset.length}/${dependencies.length} nodes`
           : null}
-        . Drag / scroll to explore.
       </p>
-      <div className="h-[420px] overflow-hidden rounded-md border border-white/10 bg-ink/40">
+      <div className="h-[380px] overflow-hidden border border-manifest-200/15 bg-ink-950">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -139,14 +142,14 @@ export function DependencyGraph({ dependencies, findings }: Props) {
           maxZoom={1.5}
           proOptions={{ hideAttribution: true }}
         >
-          <Background color="rgba(148,163,184,0.25)" gap={18} />
+          <Background color="rgba(45,212,191,0.12)" gap={20} />
           <Controls />
           <MiniMap
             nodeColor={(n) =>
-              String((n.data as { riskColor?: string })?.riskColor ?? SEVERITY_COLORS.none)
+              String((n.data as { riskColor?: string })?.riskColor ?? QUAY_COLORS.none)
             }
-            maskColor="rgba(7,17,31,0.7)"
-            style={{ background: "#0f1c2e" }}
+            maskColor="rgba(11,20,32,0.75)"
+            style={{ background: "#0B1420" }}
           />
         </ReactFlow>
       </div>

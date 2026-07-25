@@ -1,8 +1,12 @@
-# Supply Chain Security Analyzer
+# Quaywatch
 
-Full-stack app that scans a GitHub repository for dependency vulnerabilities, typosquatting, dependency confusion, CI/CD risks, secret leaks, and license compliance.
+Harbor watch for your software supply chain. Sign in with GitHub, inspect a repository,
+and clear or hold cargo — dependency vulnerabilities, typosquats, dependency confusion,
+CI/CD risks, secret leaks, and license compliance.
 
 **Static analysis only** — repository code is never executed, installed, or evaluated.
+
+Formerly prototyped as “Supply Chain Security Analyzer”; product name is **Quaywatch**.
 
 ## Tech stack
 
@@ -17,89 +21,47 @@ Full-stack app that scans a GitHub repository for dependency vulnerabilities, ty
 
 ## Phase status
 
-- [x] **Phase 0** — Scaffolding
-- [x] **Phase 1** — GitHub OAuth + repo submission
-- [x] **Phase 2** — Dependency parsing
-- [x] **Phase 3** — Vulnerability scanning (OSV.dev)
-- [x] **Phase 4** — Typosquatting detection
-- [x] **Phase 5** — Dependency confusion detection
-- [x] **Phase 6** — CI/CD and secret scanning
-- [x] **Phase 7** — License compliance
-- [x] **Phase 8** — Dashboard & reporting
+- [x] Phases 0–8 — Core product + Quaywatch UI overhaul
 - [ ] Phase 9 — Deployment (Render + Vercel)
 
-## Auth choice
+## Auth
 
-OAuth runs on **FastAPI** (not NextAuth). The backend must store an encrypted GitHub
-access token for Celery workers to call the GitHub API during scans — keeping login
-on the API avoids syncing tokens from a separate NextAuth session.
-
-Default OAuth scope is `read:user public_repo` (public repos only). Users who need
-private-repo scans can re-authorize via `?private=true` (`repo` scope).
-`SECRET_KEY` and `TOKEN_ENCRYPTION_KEY` are required env vars (no insecure defaults).
+OAuth runs on **FastAPI**. Default scope is `read:user public_repo`. Private repos need
+re-authorize with `?private=true`. `SECRET_KEY` and `TOKEN_ENCRYPTION_KEY` are required.
 
 ## Quick start
 
 ### Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- A [GitHub OAuth App](https://github.com/settings/developers) with callback
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [GitHub OAuth App](https://github.com/settings/developers) callback
   `http://localhost:8000/api/auth/github/callback`
 
 ### Steps
 
-1. Copy the example env file and fill in GitHub OAuth values:
-
 ```bash
 cp .env.example .env
-```
-
-(On Windows PowerShell: `Copy-Item .env.example .env`)
-
-2. Start everything:
-
-```bash
+# fill GITHUB_CLIENT_ID / SECRET, SECRET_KEY, TOKEN_ENCRYPTION_KEY
 docker compose up --build
 ```
 
-3. When healthy, open:
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Dashboard | http://localhost:3000/dashboard |
+| API health | http://localhost:8000/health |
+| API docs | http://localhost:8000/docs |
 
-| Service | URL | What you should see |
-|---------|-----|---------------------|
-| Frontend | http://localhost:3000 | Landing page + **Login with GitHub** |
-| Dashboard | http://localhost:3000/dashboard | Scan form (after login) |
-| API health | http://localhost:8000/health | `{"status":"ok",...}` |
-| API docs | http://localhost:8000/docs | FastAPI Swagger UI |
+## Features
 
-4. Confirm containers are up:
+- Checkpoint belt progress during scans
+- Live action feed on the ops console
+- Manifest ledger findings with StampBadges
+- Dependency graph + severity charts + finding trend sparkline
+- Public share links (`/report/{token}`) and embeddable SVG badges
+- Since-last-scan regression diff (+new / resolved)
 
-```bash
-docker compose ps
-```
+## Security note
 
-You should see `scsa-postgres`, `scsa-redis`, `scsa-backend`, `scsa-worker`, and `scsa-frontend` all running / healthy.
-
-### Stop
-
-```bash
-docker compose down
-```
-
-## Project layout
-
-```
-supply-chain-analyzer/
-├── docker-compose.yml
-├── backend/          # FastAPI + Celery + Alembic
-├── frontend/         # Next.js App Router
-└── README.md
-```
-
-## Phase 8 reporting
-
-Completed scans show summary counts, a severity bar chart (Recharts), a dependency graph
-(React Flow, color-coded by risk), a filterable findings table, and **Export JSON** /
-**Export PDF** (print dialog → Save as PDF). The dashboard lists scan history with counts.
-
-
-Scans read manifests, lockfiles, CI configs, and source text only (GitHub Contents API or a shallow read-only clone into a temp directory that is deleted afterward). Dependencies from scanned repos are **never** installed or run.
+Scans read manifests, lockfiles, CI configs, and source text only via the GitHub Contents API.
+Dependencies from scanned repos are **never** installed or run.

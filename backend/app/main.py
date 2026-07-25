@@ -12,9 +12,9 @@ from app.core.config import get_settings
 settings = get_settings()
 
 app = FastAPI(
-    title="Supply Chain Security Analyzer",
-    description="Scan GitHub repos for dependency, CI/CD, secret, and license risks.",
-    version="0.1.0",
+    title="Quaywatch",
+    description="Harbor watch for your software supply chain — dependencies, CI/CD, secrets, licenses.",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -33,7 +33,7 @@ app.include_router(scans.router)
 @app.get("/")
 def root() -> dict[str, str]:
     return {
-        "message": "Supply Chain Security Analyzer API",
+        "message": "Quaywatch API",
         "docs": "/docs",
         "health": "/health",
     }
