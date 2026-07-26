@@ -82,6 +82,27 @@ services:
     # Celery worker picks up scan jobs from Redis
     command: celery -A app.tasks.celery_app worker --loglevel=info
 
+  # Optional: docker compose --profile beat up
+  beat:
+    profiles: ["beat"]
+    build: ./backend
+    container_name: scsa-beat
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://scsa:scsa_dev_password@postgres:5432/supply_chain_analyzer}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      PERIODIC_RESCAN_ENABLED: ${PERIODIC_RESCAN_ENABLED:-false}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      worker:
+        condition: service_started
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+
   frontend:
     build: ./frontend
     container_name: scsa-frontend

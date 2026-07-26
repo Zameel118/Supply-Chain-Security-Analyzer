@@ -1,9 +1,9 @@
 """
-Celery application — background worker that will run scans (Phase 1+).
-Phase 0 only wires Redis; real scan tasks are added later.
+Celery application — Redis broker for scan workers + optional beat schedule.
 """
 
 from celery import Celery
+from celery.schedules import crontab
 
 from app.core.config import get_settings
 
@@ -22,6 +22,16 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     broker_connection_retry_on_startup=True,
-    # Autodiscover tasks in app.tasks package once we add them
-    imports=("app.tasks.scan_tasks",),
+    imports=(
+        "app.tasks.scan_tasks",
+        "app.tasks.periodic_rescan",
+    ),
+    beat_schedule={
+        "enqueue-due-rescans": {
+            "task": "app.tasks.periodic_rescan.enqueue_due_rescans",
+            # Hourly tick; the task enforces PERIODIC_RESCAN_ENABLED + min age.
+            "schedule": crontab(minute=0),
+            "options": {"expires": 3500},
+        },
+    },
 )

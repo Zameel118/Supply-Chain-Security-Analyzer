@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Allow the Dockerized frontend to call the backend by hostname
   reactStrictMode: true,
+  // Enables the slim production image in Dockerfile.prod
+  output: "standalone",
 };
 
 module.exports = nextConfig;

@@ -105,7 +105,7 @@ def github_callback(code: str, state: str, db: Session = Depends(get_db)) -> Red
         key=COOKIE_NAME,
         value=session_jwt,
         httponly=True,
-        samesite="lax",
+        samesite=settings.cookie_samesite,
         secure=settings.cookie_secure,
         max_age=60 * 60 * 24 * 7,
         path="/",
@@ -135,5 +135,11 @@ def me_or_null(user: User | None = Depends(get_optional_user)) -> dict:
 
 @router.post("/logout")
 def logout(response: Response) -> dict[str, str]:
-    response.delete_cookie(COOKIE_NAME, path="/")
+    settings = get_settings()
+    response.delete_cookie(
+        COOKIE_NAME,
+        path="/",
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
+    )
     return {"status": "logged_out"}
