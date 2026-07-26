@@ -27,15 +27,19 @@ function shortRepo(url: string | null): string {
 export function LiveFeed() {
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [flash, setFlash] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
+    let prevLen = 0;
 
     async function tick() {
       try {
         const data = await fetchActivity();
         if (!cancelled) {
+          if (data.length !== prevLen) setFlash((n) => n + 1);
+          prevLen = data.length;
           setEvents(data);
           setError(null);
         }
@@ -44,7 +48,7 @@ export function LiveFeed() {
           setError(err instanceof Error ? err.message : "Feed unavailable");
         }
       }
-      if (!cancelled) timer = setTimeout(tick, 4000);
+      if (!cancelled) timer = setTimeout(tick, 3000);
     }
 
     tick();
@@ -58,13 +62,15 @@ export function LiveFeed() {
     <Panel
       id="feed"
       label="Live action feed"
-      className="flex h-full min-h-[28rem] flex-col !bg-ink-950/90 quay-scanlines"
+      data-tour="feed"
+      className="relative flex h-full min-h-[28rem] flex-col overflow-hidden !bg-ink-950/90 quay-scanlines"
     >
-      <div className="mb-4 flex items-center justify-between gap-2 border-b border-manifest-200/10 pb-3">
+      <div className="quay-feed-rail" aria-hidden />
+      <div className="relative z-[1] mb-4 flex items-center justify-between gap-2 border-b border-manifest-200/10 pb-3">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
           <span className="font-mono text-[10px] uppercase tracking-wider text-signal-teal">
-            Streaming · 4s
+            Streaming · 3s · pulse #{flash}
           </span>
         </div>
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">
@@ -72,21 +78,23 @@ export function LiveFeed() {
         </span>
       </div>
 
-      {error ? <p className="text-sm text-stamp-red">{error}</p> : null}
+      {error ? <p className="relative z-[1] text-sm text-stamp-red">{error}</p> : null}
 
       {events.length === 0 && !error ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
+        <div className="relative z-[1] flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
           <span className="font-mono text-2xl text-stamp-slate/40">◌</span>
           <p className="font-mono text-xs text-stamp-slate">
-            Quiet quay — start an inspection to light the feed.
+            Quiet quay. Start an inspection to light the feed.
           </p>
         </div>
       ) : (
-        <ul className="flex flex-1 flex-col gap-2.5">
+        <ul className="relative z-[1] flex flex-1 flex-col gap-2.5">
           {events.map((ev, i) => (
             <li
               key={ev.id}
-              className={`quay-feed-item rounded-sm border px-3 py-2.5 transition hover:border-signal-teal/40 ${statusTone(ev.status)}`}
+              className={`quay-feed-ingress quay-feed-item rounded-sm border px-3 py-2.5 transition hover:border-signal-teal/40 ${statusTone(ev.status)} ${
+                i === 0 ? "ring-1 ring-signal-teal/25" : ""
+              }`}
               style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
             >
               <div className="flex items-start gap-2.5">

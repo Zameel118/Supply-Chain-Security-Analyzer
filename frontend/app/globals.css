@@ -174,6 +174,125 @@ body {
   animation: quay-board-tick 1.8s ease-in-out infinite;
 }
 
+@keyframes quay-feed-rail {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420%);
+    opacity: 0.25;
+  }
+}
+
+.quay-feed-rail {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 28%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(45, 212, 191, 0.12),
+    transparent
+  );
+  animation: quay-feed-rail 3.8s ease-in-out infinite;
+}
+
+@keyframes quay-feed-ingress {
+  0% {
+    background-color: rgba(45, 212, 191, 0.12);
+    opacity: 0.7;
+  }
+  100% {
+    background-color: transparent;
+    opacity: 1;
+  }
+}
+
+.quay-feed-ingress {
+  animation: quay-feed-ingress 0.7s ease-out;
+}
+
+/* Spotlight tour (Quaywatch) */
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+.tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 20, 32, 0.72);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+  animation: tour-fade-in 0.28s ease-out;
+}
+.tour-spotlight {
+  position: fixed;
+  z-index: 201;
+  pointer-events: none;
+  border: 2px solid #2dd4bf;
+  box-shadow:
+    0 0 0 9999px rgba(11, 20, 32, 0.72),
+    0 0 28px rgba(45, 212, 191, 0.35),
+    inset 0 0 18px rgba(45, 212, 191, 0.12);
+  transition:
+    top 0.4s ease-out,
+    left 0.4s ease-out,
+    width 0.4s ease-out,
+    height 0.4s ease-out;
+}
+.tour-tooltip {
+  position: fixed;
+  z-index: 202;
+  width: min(400px, calc(100vw - 24px));
+  pointer-events: auto;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  background: #13233a;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  transition:
+    top 0.4s ease-out,
+    left 0.4s ease-out,
+    opacity 0.28s ease-out,
+    transform 0.28s ease-out;
+}
+.tour-tooltip.is-entering {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+.tour-tooltip.is-ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.tour-body-fade {
+  animation: tip-body-in 0.32s ease-out;
+}
+
+@keyframes tour-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tip-body-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .quay-ticker-track,
   .quay-pulse,
@@ -182,7 +301,9 @@ body {
   .quay-cursor-blink,
   .quay-nav-live,
   .quay-board-live,
-  .quay-btn-primary::before {
+  .quay-btn-primary::before,
+  .quay-feed-rail,
+  .quay-feed-ingress {
     animation: none !important;
   }
 }

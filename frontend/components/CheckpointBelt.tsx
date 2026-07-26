@@ -67,7 +67,7 @@ export function CheckpointBelt({ status, currentPhase }: Props) {
         {status === "complete"
           ? "all clear"
           : status === "failed"
-            ? "hold — inspection failed"
+            ? "hold: inspection failed"
             : `active: ${phase ?? "queued"}`}
       </p>
     </div>

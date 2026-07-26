@@ -100,9 +100,10 @@ const NAV: {
 type Props = {
   children: React.ReactNode;
   marketing?: boolean;
+  onOpenTour?: () => void;
 };
 
-export function AppShell({ children, marketing = false }: Props) {
+export function AppShell({ children, marketing = false, onOpenTour }: Props) {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -163,7 +164,7 @@ export function AppShell({ children, marketing = false }: Props) {
     return (
       <div className="min-h-screen">
         <header className="sticky top-0 z-30 border-b border-manifest-200/10 bg-ink-950/80 backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-3.5 lg:px-8">
+          <div className="mx-auto flex w-full items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
             <Link href="/">
               <QuayLogo />
             </Link>
@@ -204,7 +205,7 @@ export function AppShell({ children, marketing = false }: Props) {
         <div
           className={`flex items-center py-4 ${railOpen ? "justify-between gap-2" : "flex-col gap-3"}`}
         >
-          <Link href="/" className="flex shrink-0 justify-center overflow-hidden">
+          <Link href="/" className="flex shrink-0 justify-center overflow-hidden" data-tour="brand">
             <QuayLogo showWordmark={railOpen} size={26} />
           </Link>
           <button
@@ -218,7 +219,10 @@ export function AppShell({ children, marketing = false }: Props) {
         </div>
 
         {railOpen ? (
-          <div className="mb-3 border border-signal-teal/20 bg-ink-950/70 px-2.5 py-2 quay-scanlines">
+          <div
+            className="mb-3 border border-signal-teal/20 bg-ink-950/70 px-2.5 py-2 quay-scanlines"
+            data-tour="channel"
+          >
             <div className="flex items-center justify-between">
               <span className="font-mono text-[9px] uppercase tracking-wider text-signal-teal">
                 Channel live
@@ -362,9 +366,21 @@ export function AppShell({ children, marketing = false }: Props) {
             Quaywatch · inspection console ·{" "}
             <span className="text-signal-teal quay-board-live">live</span>
           </p>
-          <p className="hidden font-mono text-[10px] tabular-nums text-stamp-slate sm:block">
-            {clock}
-          </p>
+          <div className="flex items-center gap-3">
+            {onOpenTour ? (
+              <button
+                type="button"
+                data-tour="help"
+                onClick={onOpenTour}
+                className="font-mono text-[10px] uppercase tracking-wider text-stamp-slate hover:text-signal-teal"
+              >
+                Tour (?)
+              </button>
+            ) : null}
+            <p className="hidden font-mono text-[10px] tabular-nums text-stamp-slate sm:block">
+              {clock}
+            </p>
+          </div>
         </div>
         <main className="px-4 py-5 sm:px-6 lg:px-7">{children}</main>
       </div>

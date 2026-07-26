@@ -60,10 +60,10 @@ export function ScanHistory({ scans }: Props) {
                 </StampBadge>
               </td>
               <td className="px-3 py-3 font-mono text-xs tabular-nums">
-                {scan.dependency_count ?? "—"}
+                {scan.dependency_count ?? "-"}
               </td>
               <td className="px-3 py-3 font-mono text-xs tabular-nums">
-                {scan.finding_count ?? "—"}
+                {scan.finding_count ?? "-"}
               </td>
               <td className="whitespace-nowrap px-3 py-3 font-mono text-[11px] text-stamp-slate">
                 {new Date(scan.created_at).toLocaleString()}

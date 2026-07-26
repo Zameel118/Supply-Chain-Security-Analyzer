@@ -5,9 +5,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/Button";
+import {
+  AnalyzerCoverage,
+  RiskPulse,
+  WatchlistPanel,
+} from "@/components/DashboardExtras";
 import { LiveFeed } from "@/components/LiveFeed";
 import { ScanForm } from "@/components/ScanForm";
 import { StatusBoard } from "@/components/StatusBoard";
+import { TourGuide, shouldAutoShowTour } from "@/components/TourGuide";
 import { fetchMe, fetchScans, getLoginUrl, type Scan, type User } from "@/lib/api";
 
 export default function DashboardPage() {
@@ -15,6 +21,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
     fetchMe()
@@ -33,6 +40,14 @@ export default function DashboardPage() {
   }, [router]);
 
   useEffect(() => {
+    if (!user || loading) return;
+    if (shouldAutoShowTour()) {
+      const t = setTimeout(() => setTourOpen(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [user, loading]);
+
+  useEffect(() => {
     if (!user) return;
     const t = setInterval(() => {
       fetchScans()
@@ -41,6 +56,19 @@ export default function DashboardPage() {
     }, 5000);
     return () => clearInterval(t);
   }, [user]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        e.preventDefault();
+        setTourOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   if (loading) {
     return (
@@ -56,7 +84,7 @@ export default function DashboardPage() {
   const running = scans.filter((s) => s.status === "running" || s.status === "queued");
 
   return (
-    <AppShell>
+    <AppShell onOpenTour={() => setTourOpen(true)}>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-teal">
@@ -70,6 +98,15 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            type="button"
+            className="!py-2 !text-xs"
+            data-tour="help"
+            onClick={() => setTourOpen(true)}
+          >
+            Tour (?)
+          </Button>
           <Button href="#inspect" className="!py-2 !text-xs">
             + New inspection
           </Button>
@@ -100,16 +137,26 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      <div className="mb-5">
+      <div className="mb-5" data-tour="board">
         <StatusBoard scans={scans} />
       </div>
 
+      <div className="mb-5 grid gap-4 lg:grid-cols-3">
+        <RiskPulse scans={scans} />
+        <WatchlistPanel scans={scans} />
+        <AnalyzerCoverage scans={scans} />
+      </div>
+
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <ScanForm />
+        <div data-tour="inspect">
+          <ScanForm />
+        </div>
         <aside className="xl:sticky xl:top-4">
           <LiveFeed />
         </aside>
       </div>
+
+      <TourGuide open={tourOpen} onClose={() => setTourOpen(false)} />
     </AppShell>
   );
 }

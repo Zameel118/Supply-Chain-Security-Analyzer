@@ -57,7 +57,7 @@ export function SharePanel({ scan, onTokenChange }: Props) {
         <p className="mt-3 break-all font-mono text-xs text-signal-teal">{publicUrl}</p>
       ) : (
         <p className="mt-3 font-mono text-xs text-stamp-slate">
-          Public link disabled — only you can view this berth.
+          Public link disabled: only you can view this berth.
         </p>
       )}
       <p className="mt-3 font-display text-[10px] font-bold uppercase tracking-wide text-manifest-200/60">

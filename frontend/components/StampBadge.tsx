@@ -5,11 +5,11 @@ import type { ReactNode } from "react";
 export type StampSeverity = "critical" | "high" | "medium" | "low" | "info" | "cleared";
 
 const STAMP_LABEL: Record<StampSeverity, string> = {
-  critical: "CRITICAL — HOLD",
-  high: "FLAGGED — HIGH",
-  medium: "FLAGGED — MEDIUM",
-  low: "NOTED — LOW",
-  info: "NOTED — INFO",
+  critical: "CRITICAL · HOLD",
+  high: "FLAGGED · HIGH",
+  medium: "FLAGGED · MEDIUM",
+  low: "NOTED · LOW",
+  info: "NOTED · INFO",
   cleared: "CLEARED",
 };
 

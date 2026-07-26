@@ -16,7 +16,7 @@ const TERMINAL = new Set(["complete", "failed"]);
 
 type Props = {
   scanId: string;
-  /** Public report mode — hide share controls that require auth */
+  /** Public report mode: hide share controls that require auth */
   readOnly?: boolean;
   initialScan?: Scan | null;
 };
@@ -253,7 +253,7 @@ export function ScanStatusPoller({ scanId, readOnly = false, initialScan = null 
               <div className="border border-signal-teal/30 bg-signal-teal/5 px-4 py-6">
                 <StampBadge severity="cleared" seed={`${scan.id}-clear`} />
                 <p className="mt-3 font-mono text-sm text-signal-teal">
-                  Berth cleared — no findings on this inspection.
+                  Berth cleared: no findings on this inspection.
                 </p>
               </div>
             ) : (
@@ -293,13 +293,13 @@ export function ScanStatusPoller({ scanId, readOnly = false, initialScan = null 
                             {f.file_path
                               ? `${f.dependency_name ? " · " : ""}${f.file_path}${f.line_number ? `:${f.line_number}` : ""}`
                               : null}
-                            {!f.dependency_name && !f.file_path ? "—" : null}
+                            {!f.dependency_name && !f.file_path ? "-" : null}
                           </td>
                           <td className="px-3 py-2.5 font-mono text-xs">
                             {f.is_new ? (
                               <span className="text-stamp-red">NEW</span>
                             ) : (
-                              <span className="text-stamp-slate">—</span>
+                              <span className="text-stamp-slate">-</span>
                             )}
                           </td>
                         </tr>
@@ -371,7 +371,7 @@ export function ScanStatusPoller({ scanId, readOnly = false, initialScan = null 
                   {filteredDeps.map((dep) => (
                     <tr key={dep.id} className="border-t border-manifest-200/10">
                       <td className="px-3 py-2 font-mono text-xs text-manifest-100">{dep.name}</td>
-                      <td className="px-3 py-2 font-mono text-xs">{dep.version ?? "—"}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{dep.version ?? "-"}</td>
                       <td className="px-3 py-2 font-mono text-xs text-stamp-slate">{dep.ecosystem}</td>
                       <td className="px-3 py-2 font-mono text-xs">{dep.depth}</td>
                       <td className="px-3 py-2 font-mono text-xs">

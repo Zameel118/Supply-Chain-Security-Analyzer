@@ -98,8 +98,8 @@ export function openPdfReport(
         <td>${escapeHtml(f.severity)}</td>
         <td>${escapeHtml(f.type)}</td>
         <td>${escapeHtml(f.title)}</td>
-        <td>${escapeHtml(f.dependency_name ?? f.file_path ?? "—")}</td>
-        <td>${escapeHtml(f.remediation ?? "—")}</td>
+        <td>${escapeHtml(f.dependency_name ?? f.file_path ?? "-")}</td>
+        <td>${escapeHtml(f.remediation ?? "-")}</td>
       </tr>`,
     )
     .join("");
@@ -108,7 +108,7 @@ export function openPdfReport(
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>SCSA Report — ${escapeHtml(scan.repo_url)}</title>
+  <title>Quaywatch Report · ${escapeHtml(scan.repo_url)}</title>
   <style>
     body { font-family: Georgia, serif; color: #111; margin: 2rem; line-height: 1.4; }
     h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
@@ -157,7 +157,7 @@ export function openPdfReport(
 
   const w = window.open("", "_blank");
   if (!w) {
-    throw new Error("Pop-up blocked — allow pop-ups to export PDF");
+    throw new Error("Pop-up blocked: allow pop-ups to export PDF");
   }
   w.document.open();
   w.document.write(html);

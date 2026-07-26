@@ -8,7 +8,7 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 };
 
 /**
- * Shared surface panel — ink plate with manifest hairline border.
+ * Shared surface panel: ink plate with manifest hairline border.
  * Replaces ad-hoc rounded slate cards.
  */
 export function Panel({

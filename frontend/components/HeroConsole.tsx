@@ -11,14 +11,14 @@ const LINES = [
   { t: "12:04:19", msg: "secrets · 0 matches", ok: true },
   { t: "12:04:22", msg: "license · review GPL hold", ok: false },
   { t: "12:04:25", msg: "berth CLEARED · report ready", ok: true },
+  { t: "12:04:28", msg: "share token minted", ok: true },
+  { t: "12:04:31", msg: "badge.svg refreshed", ok: true },
 ];
 
-/**
- * Animated ops console that fills the empty hero right side.
- */
 export function HeroConsole() {
-  const [visible, setVisible] = useState(1);
+  const [visible, setVisible] = useState(3);
   const [clock, setClock] = useState("--:--:--");
+  const [latency, setLatency] = useState(1.2);
 
   useEffect(() => {
     const reduced =
@@ -29,8 +29,9 @@ export function HeroConsole() {
       return;
     }
     const id = setInterval(() => {
-      setVisible((n) => (n >= LINES.length ? 1 : n + 1));
-    }, 1400);
+      setVisible((n) => (n >= LINES.length ? 2 : n + 1));
+      setLatency((n) => Math.round((0.8 + Math.random() * 1.4) * 10) / 10);
+    }, 1200);
     return () => clearInterval(id);
   }, []);
 
@@ -45,10 +46,10 @@ export function HeroConsole() {
 
   return (
     <div className="relative overflow-hidden border border-signal-teal/25 bg-ink-950/90 shadow-[0_0_60px_-12px_rgba(45,212,191,0.35)] quay-scanlines">
+      <div className="quay-feed-rail opacity-60" aria-hidden />
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-stamp-amber/10 blur-3xl" />
 
-      <div className="flex items-center justify-between border-b border-manifest-200/10 px-4 py-2.5">
+      <div className="relative z-[1] flex items-center justify-between border-b border-manifest-200/10 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
           <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-signal-teal">
@@ -58,8 +59,8 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto] gap-0">
-        <div className="relative flex min-h-[220px] items-center justify-center border-r border-manifest-200/10 p-6">
+      <div className="relative z-[1] grid grid-cols-[1fr_auto] gap-0">
+        <div className="relative flex min-h-[200px] items-center justify-center border-r border-manifest-200/10 p-6">
           <div className="quay-radar absolute inset-6 opacity-80" aria-hidden />
           <div className="relative z-10 text-center">
             <p className="font-mono text-[10px] uppercase tracking-widest text-stamp-slate">
@@ -78,16 +79,16 @@ export function HeroConsole() {
           <StampBadge severity="medium" seed="hero-md" size="sm" />
           <div className="border border-manifest-200/10 bg-ink-800/80 px-2 py-2">
             <p className="font-mono text-[9px] uppercase text-stamp-slate">Latency</p>
-            <p className="font-mono text-sm tabular-nums text-manifest-100">1.2s</p>
+            <p className="font-mono text-sm tabular-nums text-manifest-100">{latency.toFixed(1)}s</p>
           </div>
         </div>
       </div>
 
-      <ul className="max-h-40 space-y-1 border-t border-manifest-200/10 px-3 py-2.5 font-mono text-[11px]">
+      <ul className="relative z-[1] max-h-48 space-y-1 overflow-hidden border-t border-manifest-200/10 px-3 py-2.5 font-mono text-[11px]">
         {shown.map((line, i) => (
           <li
-            key={`${line.t}-${i}`}
-            className={`flex gap-2 quay-feed-item ${line.ok ? "text-manifest-200/80" : "text-stamp-amber"}`}
+            key={`${line.t}-${i}-${visible}`}
+            className={`flex gap-2 quay-feed-ingress ${line.ok ? "text-manifest-200/80" : "text-stamp-amber"}`}
           >
             <span className="shrink-0 text-stamp-slate">{line.t}</span>
             <span className="truncate">{line.msg}</span>

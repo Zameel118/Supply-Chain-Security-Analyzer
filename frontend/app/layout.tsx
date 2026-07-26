@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s · Quaywatch",
   },
   description:
-    "Harbor watch for your software supply chain — dependency vulns, typosquats, CI/CD, secrets, and licenses.",
+    "Harbor watch for your software supply chain: dependency vulns, typosquats, CI/CD, secrets, and licenses.",
   applicationName: "Quaywatch",
   icons: {
     icon: "/quaywatch-icon.png",
