@@ -73,18 +73,17 @@ export function HeroConsole() {
 
       <div className="relative z-[1] flex min-h-0 flex-1 flex-col">
         <div className="quay-berth-viz relative flex min-h-0 flex-1 items-center justify-center py-2">
-          <div className="quay-radar-hub relative h-[12.5rem] w-[12.5rem] sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[15.5rem] xl:w-[15.5rem]">
-            <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
-            <div className="quay-radar-live absolute inset-0 overflow-hidden rounded-full" aria-hidden>
-              <span className="quay-radar-blip quay-radar-blip-a" />
-              <span className="quay-radar-blip quay-radar-blip-b" />
-              <span className="quay-radar-blip quay-radar-blip-c" />
-            </div>
+          <div className="quay-radar-hub quay-radar-live relative h-[12.5rem] w-[12.5rem] sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[15.5rem] xl:w-[15.5rem]">
+            <div className="quay-radar quay-radar-sweep absolute inset-0 opacity-95" aria-hidden />
+            <div className="quay-radar-echo pointer-events-none absolute inset-[6%] rounded-full" aria-hidden />
+            <span className="quay-radar-blip quay-radar-blip-1" aria-hidden />
+            <span className="quay-radar-blip quay-radar-blip-2" aria-hidden />
+            <span className="quay-radar-blip quay-radar-blip-3" aria-hidden />
             <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
+              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate quay-radar-label">
                 Threat sweep
               </p>
-              <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl">
+              <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow quay-count-live xl:text-5xl">
                 07
               </p>
               <p className="mt-1 font-mono text-[10px] text-manifest-200/60 xl:text-xs">

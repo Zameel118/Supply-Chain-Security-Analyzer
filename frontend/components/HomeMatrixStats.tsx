@@ -43,34 +43,20 @@ export function HomeMatrixStats({ compact = false }: Props) {
     return () => clearInterval(id);
   }, []);
 
-  const gridClass = compact ? "grid-cols-2 grid-rows-2" : "grid-cols-2 sm:grid-cols-4";
-
-  const rootClass = compact
-    ? `quay-hero-panel quay-matrix-hero grid ${gridClass} gap-px border border-signal-teal/25 bg-signal-teal/20`
-    : `grid ${gridClass} gap-px border border-signal-teal/25 bg-signal-teal/20`;
+  const gridClass = compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4";
 
   return (
-    <div className={rootClass}>
+    <div className={`grid ${gridClass} gap-px border border-signal-teal/25 bg-signal-teal/20`}>
       {metrics.map((m) => (
         <div
           key={m.label}
-          className={`min-w-0 bg-black/50 quay-scanlines ${
-            compact
-              ? "flex min-h-0 flex-col justify-center px-3 py-4 sm:px-4"
-              : "px-2.5 py-2.5 sm:px-3 sm:py-3"
-          }`}
+          className="min-w-0 bg-black/50 px-2.5 py-2.5 quay-scanlines sm:px-3 sm:py-3"
         >
-          <p
-            className={`truncate font-mono uppercase tracking-wide text-stamp-slate ${
-              compact ? "text-[9px] sm:text-[10px]" : "text-[8px] sm:text-[9px]"
-            }`}
-          >
+          <p className="truncate font-mono text-[8px] uppercase tracking-wide text-stamp-slate sm:text-[9px]">
             {m.label}
           </p>
           <p
-            className={`mt-1 truncate font-mono font-semibold tabular-nums ${
-              compact ? "text-2xl sm:text-3xl xl:text-[2rem]" : "mt-0.5 text-base sm:text-lg"
-            } ${m.tone}`}
+            className={`mt-0.5 truncate font-mono text-base font-semibold tabular-nums sm:text-lg ${m.tone}`}
           >
             {format(m.value)}
           </p>
