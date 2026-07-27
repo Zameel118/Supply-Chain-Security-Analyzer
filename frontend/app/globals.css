@@ -175,6 +175,11 @@ body {
   }
 }
 
+.quay-matrix-hero {
+  box-shadow:
+    0 0 40px -24px rgba(37, 99, 235, 0.35),
+    inset 0 1px 0 rgba(34, 211, 238, 0.08);
+}
 .quay-berth-console {
   box-shadow:
     0 0 60px -20px rgba(37, 99, 235, 0.45),
@@ -305,8 +310,75 @@ body {
     rgba(37, 99, 235, 0.35) 52deg,
     transparent 72deg
   );
-  animation: quay-radar-spin 4.5s linear infinite;
+  animation: quay-radar-spin 3.2s linear infinite;
 }
+
+.quay-radar-live::before,
+.quay-radar-live::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border-radius: 9999px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  pointer-events: none;
+}
+.quay-radar-live::before {
+  animation: quay-radar-echo 2.4s ease-out infinite;
+}
+.quay-radar-live::after {
+  animation: quay-radar-echo 2.4s ease-out 1.2s infinite;
+}
+
+@keyframes quay-radar-echo {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+
+.quay-radar-blip {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(34, 211, 238, 0.95);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.9);
+  animation: quay-radar-blip 2.1s ease-in-out infinite;
+}
+.quay-radar-blip-a {
+  top: 24%;
+  left: 66%;
+  animation-delay: 0s;
+}
+.quay-radar-blip-b {
+  top: 58%;
+  left: 28%;
+  animation-delay: 0.7s;
+}
+.quay-radar-blip-c {
+  top: 38%;
+  left: 78%;
+  animation-delay: 1.35s;
+}
+
+@keyframes quay-radar-blip {
+  0%,
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  8%,
+  24% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 
 @keyframes quay-blink {
   0%,
@@ -325,6 +397,19 @@ body {
 
 .quay-count-glow {
   text-shadow: 0 0 24px rgba(34, 211, 238, 0.55);
+  animation: quay-count-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes quay-count-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 28px rgba(34, 211, 238, 0.85),
+      0 0 44px rgba(37, 99, 235, 0.35);
+  }
 }
 
 .quay-btn-primary::before {
@@ -462,6 +547,10 @@ body {
   .quay-feed-item,
   .quay-radar::before,
   .quay-radar::after,
+  .quay-radar-live::before,
+  .quay-radar-live::after,
+  .quay-radar-blip,
+  .quay-count-glow,
   .quay-radar-hub::before,
   .quay-radar-hub::after,
   .quay-cursor-blink,

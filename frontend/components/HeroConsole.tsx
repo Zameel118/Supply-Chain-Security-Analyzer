@@ -75,6 +75,11 @@ export function HeroConsole() {
         <div className="quay-berth-viz relative flex min-h-0 flex-1 items-center justify-center py-2">
           <div className="quay-radar-hub relative h-[12.5rem] w-[12.5rem] sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[15.5rem] xl:w-[15.5rem]">
             <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
+            <div className="quay-radar-live absolute inset-0 overflow-hidden rounded-full" aria-hidden>
+              <span className="quay-radar-blip quay-radar-blip-a" />
+              <span className="quay-radar-blip quay-radar-blip-b" />
+              <span className="quay-radar-blip quay-radar-blip-c" />
+            </div>
             <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
               <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
                 Threat sweep

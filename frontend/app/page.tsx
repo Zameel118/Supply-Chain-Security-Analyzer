@@ -27,7 +27,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative grid items-stretch gap-4 xl:grid-cols-12 xl:gap-4 2xl:gap-5">
-            <div className="flex flex-col gap-5 xl:col-span-4">
+            <div className="flex flex-col gap-5 xl:col-span-4 xl:h-full">
               <div>
                 <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-signal-cyan quay-pulse" />
@@ -62,16 +62,16 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="hidden sm:block">
+              <div className="hidden shrink-0 sm:block xl:mt-auto">
                 <HomeMatrixStats compact />
               </div>
             </div>
 
-            <div className="flex min-h-0 w-full xl:col-span-5">
+            <div className="flex min-h-0 w-full xl:col-span-5 xl:items-end">
               <HeroConsole />
             </div>
 
-            <div className="flex min-h-0 w-full xl:col-span-3">
+            <div className="flex min-h-0 w-full xl:col-span-3 xl:items-end">
               <HeroSignalRail />
             </div>
           </div>
