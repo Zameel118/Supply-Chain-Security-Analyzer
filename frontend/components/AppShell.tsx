@@ -176,6 +176,12 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
               >
                 User guide
               </Link>
+              <Link
+                href="/#live-arsenal"
+                className="hidden font-mono text-[11px] uppercase tracking-wider text-stamp-slate hover:text-signal-cyan lg:block"
+              >
+                Arsenal
+              </Link>
               {loading ? (
                 <span className="font-mono text-xs text-stamp-slate">…</span>
               ) : user ? (

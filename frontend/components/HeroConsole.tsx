@@ -47,7 +47,7 @@ export function HeroConsole() {
   const tail = LINES.slice(0, visible).slice(-TAIL_LINES);
 
   return (
-    <div className="relative flex h-[36rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:h-[38rem] 2xl:h-[40rem]">
+    <div className="relative flex h-full min-h-[32rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:min-h-[34rem] 2xl:min-h-[36rem]">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/20 blur-3xl" />
 
       <div className="relative z-[1] shrink-0 quay-live-header flex items-center justify-between px-4 py-2.5">
@@ -61,63 +61,65 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      {/* Sweep + status — fixed height, never grows */}
-      <div className="relative z-[1] grid h-[17.5rem] shrink-0 grid-cols-1 gap-0 border-b border-signal-teal/15 sm:grid-cols-[minmax(0,1.15fr)_minmax(10.5rem,0.85fr)] xl:h-[19rem] 2xl:h-[20rem] 2xl:grid-cols-[minmax(0,1.2fr)_minmax(12rem,0.8fr)]">
-        <div className="relative flex items-center justify-center border-b border-signal-teal/10 p-4 sm:border-b-0 sm:border-r sm:p-5">
-          <div className="relative h-[11.5rem] w-[11.5rem] shrink-0 sm:h-[12.5rem] sm:w-[12.5rem] xl:h-[14rem] xl:w-[14rem] 2xl:h-[15rem] 2xl:w-[15rem]">
-            <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
-            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
-                Threat sweep
+      <div className="relative z-[1] grid min-h-0 flex-1 xl:grid-cols-[minmax(0,1fr)_11.5rem] 2xl:grid-cols-[minmax(0,1fr)_12.5rem]">
+        {/* Radar + shell — stacked flush */}
+        <div className="flex min-w-0 flex-col">
+          <div className="flex shrink-0 justify-center px-4 pb-0 pt-3 xl:pt-4 2xl:pt-5">
+            <div className="quay-radar-hub relative h-[13rem] w-[13rem] sm:h-[14rem] sm:w-[14rem] xl:h-[16rem] xl:w-[16rem] 2xl:h-[17.5rem] 2xl:w-[17.5rem]">
+              <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
+              <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-stamp-slate xl:text-[11px]">
+                  Threat sweep
+                </p>
+                <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl 2xl:text-6xl">
+                  07
+                </p>
+                <p className="mt-1 font-mono text-[10px] text-manifest-200/60 xl:text-xs">
+                  checkpoints armed
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t border-signal-teal/20 bg-black/40">
+            <div className="flex items-center justify-between border-b border-signal-teal/10 px-3 py-1">
+              <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
+                shell · berth.log
               </p>
-              <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl 2xl:text-6xl">
-                07
-              </p>
-              <p className="mt-1 font-mono text-[10px] text-manifest-200/60 xl:text-xs">
-                checkpoints armed
-              </p>
+              <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
+            </div>
+
+            <ul className="quay-terminal-log space-y-0 px-3 py-1.5 font-mono text-[11px] leading-snug xl:text-[12px]">
+              {tail.map((line, i) => (
+                <li
+                  key={`${line.t}-${i}-${visible}`}
+                  className={`flex gap-2 quay-feed-ingress ${
+                    line.ok ? "text-signal-lime/85" : "text-stamp-amber"
+                  }`}
+                >
+                  <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
+                  <span className="min-w-0 truncate">{line.msg}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="border-t border-signal-teal/10 px-3 py-1.5 font-mono text-[11px] text-signal-cyan/90 xl:text-[12px]">
+              root@quaywatch:<span className="quay-cursor-blink">█</span>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 content-center gap-2 bg-black/20 p-3 sm:p-4">
+        {/* Status rail — uses full height on wide */}
+        <div className="flex flex-col justify-center gap-2 border-t border-signal-teal/15 bg-black/25 p-3 xl:border-l xl:border-t-0 xl:py-4 2xl:gap-2.5 2xl:p-4">
           <StampBadge severity="cleared" seed="hero-ok" size="sm" />
           <StampBadge severity="high" seed="hero-hi" size="sm" />
           <StampBadge severity="medium" seed="hero-md" size="sm" />
-          <div className="col-span-2 border border-signal-teal/20 bg-ink-900/90 px-3 py-2">
+          <div className="border border-signal-teal/20 bg-ink-900/90 px-3 py-2.5 xl:mt-1">
             <p className="font-mono text-[9px] uppercase text-stamp-slate">Latency</p>
             <p className="font-mono text-xl tabular-nums text-signal-cyan xl:text-2xl">
               {latency.toFixed(1)}s
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Terminal — fixed block; log tail only, no layout shift */}
-      <div className="relative z-[1] flex min-h-0 flex-1 flex-col bg-black/35">
-        <div className="flex shrink-0 items-center justify-between border-b border-signal-teal/15 px-3 py-1.5">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
-            shell · berth.log
-          </p>
-          <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
-        </div>
-
-        <ul className="quay-terminal-log flex min-h-0 flex-1 flex-col justify-end gap-0.5 overflow-hidden px-3 py-2 font-mono text-[11px] leading-relaxed xl:text-[12px]">
-          {tail.map((line, i) => (
-            <li
-              key={`${line.t}-${i}-${visible}`}
-              className={`flex shrink-0 gap-2 quay-feed-ingress ${
-                line.ok ? "text-signal-lime/85" : "text-stamp-amber"
-              }`}
-            >
-              <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
-              <span className="min-w-0 truncate">{line.msg}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="shrink-0 border-t border-signal-teal/15 px-3 py-2 font-mono text-[11px] text-signal-cyan/90 xl:text-[12px]">
-          root@quaywatch:<span className="quay-cursor-blink">█</span>
         </div>
       </div>
     </div>

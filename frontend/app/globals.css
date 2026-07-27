@@ -174,18 +174,66 @@ body {
   display: none;
 }
 
+.quay-radar-hub {
+  position: relative;
+  isolation: isolate;
+}
+.quay-radar-hub::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  border-radius: 9999px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: 0 0 28px rgba(34, 211, 238, 0.2);
+  animation: quay-radar-pulse 2.6s ease-in-out infinite;
+}
+.quay-radar-hub::after {
+  content: "";
+  position: absolute;
+  inset: -2%;
+  border-radius: 9999px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  animation: quay-radar-spin 18s linear infinite reverse;
+  pointer-events: none;
+}
+
+@keyframes quay-radar-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
 .quay-radar {
   position: absolute;
   border-radius: 9999px;
   aspect-ratio: 1 / 1;
-  border: 1px solid rgba(37, 99, 235, 0.45);
+  border: 1px solid rgba(37, 99, 235, 0.55);
+  box-shadow:
+    0 0 48px rgba(37, 99, 235, 0.35),
+    0 0 80px rgba(34, 211, 238, 0.12),
+    inset 0 0 36px rgba(34, 211, 238, 0.1);
   background:
-    radial-gradient(circle at center, rgba(34, 211, 238, 0.35) 0 2px, transparent 3px),
+    radial-gradient(circle at center, rgba(34, 211, 238, 0.45) 0 3px, transparent 4px),
+    radial-gradient(circle at center, transparent 42%, rgba(37, 99, 235, 0.08) 43%, transparent 44%),
     repeating-radial-gradient(
       circle at center,
-      transparent 0 18px,
-      rgba(37, 99, 235, 0.1) 18px 19px
+      transparent 0 16px,
+      rgba(37, 99, 235, 0.14) 16px 17px
     );
+}
+.quay-radar::before {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border-radius: 9999px;
+  border: 1px dashed rgba(34, 211, 238, 0.22);
+  animation: quay-radar-spin 14s linear infinite;
 }
 .quay-radar::after {
   content: "";
@@ -195,8 +243,9 @@ body {
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    rgba(34, 211, 238, 0.45) 40deg,
-    transparent 70deg
+    rgba(34, 211, 238, 0.55) 36deg,
+    rgba(37, 99, 235, 0.35) 52deg,
+    transparent 72deg
   );
   animation: quay-radar-spin 4.5s linear infinite;
 }
@@ -353,7 +402,10 @@ body {
   .quay-ticker-track,
   .quay-pulse,
   .quay-feed-item,
+  .quay-radar::before,
   .quay-radar::after,
+  .quay-radar-hub::before,
+  .quay-radar-hub::after,
   .quay-cursor-blink,
   .quay-nav-live,
   .quay-board-live,
