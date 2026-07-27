@@ -138,7 +138,7 @@ class Finding(Base):
     severity: Mapped[FindingSeverity] = mapped_column(
         Enum(FindingSeverity, name="finding_severity"), nullable=False
     )
-    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     remediation: Mapped[str | None] = mapped_column(Text, nullable=True)
     dependency_id: Mapped[uuid.UUID | None] = mapped_column(

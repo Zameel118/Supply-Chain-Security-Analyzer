@@ -221,44 +221,32 @@ body {
   animation: quay-feed-ingress 0.7s ease-out;
 }
 
-/* Spotlight tour */
+/* Spotlight tour — cutout dim; target uses .quay-tour-target */
 .tour-root {
   position: fixed;
   inset: 0;
   z-index: 200;
   pointer-events: none;
 }
-.tour-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 6, 10, 0.78);
-  backdrop-filter: blur(2px);
-  pointer-events: auto;
-  animation: tour-fade-in 0.28s ease-out;
-}
-.tour-spotlight {
-  position: fixed;
-  z-index: 201;
-  pointer-events: none;
-  border: 2px solid #ff3d81;
+
+.quay-tour-target {
+  position: relative;
+  z-index: 210 !important;
+  isolation: isolate;
   box-shadow:
-    0 0 0 9999px rgba(6, 6, 10, 0.78),
-    0 0 28px rgba(255, 61, 129, 0.35),
-    inset 0 0 18px rgba(255, 61, 129, 0.12);
-  transition:
-    top 0.4s ease-out,
-    left 0.4s ease-out,
-    width 0.4s ease-out,
-    height 0.4s ease-out;
+    0 0 0 1px rgba(34, 211, 238, 0.35),
+    0 12px 48px rgba(0, 0, 0, 0.55);
+  background-color: rgba(16, 16, 24, 0.98) !important;
 }
+
 .tour-tooltip {
   position: fixed;
-  z-index: 202;
+  z-index: 220;
   width: min(400px, calc(100vw - 24px));
   pointer-events: auto;
-  border: 1px solid rgba(255, 61, 129, 0.35);
-  background: #101018;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 61, 129, 0.45);
+  background: linear-gradient(160deg, #14141e 0%, #0a0a10 100%);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55);
   transition:
     top 0.4s ease-out,
     left 0.4s ease-out,

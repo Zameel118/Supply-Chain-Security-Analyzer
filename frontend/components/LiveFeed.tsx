@@ -92,8 +92,8 @@ export function LiveFeed() {
           {events.map((ev, i) => (
             <li
               key={ev.id}
-              className={`quay-feed-ingress quay-feed-item rounded-sm border px-3 py-2.5 transition hover:border-signal-teal/40 ${statusTone(ev.status)} ${
-                i === 0 ? "ring-1 ring-signal-teal/25" : ""
+              className={`quay-feed-ingress quay-feed-item rounded-sm border px-3 py-2.5 transition hover:border-signal-cyan/50 ${statusTone(ev.status)} ${
+                i === 0 ? "ring-1 ring-signal-cyan/40 shadow-[0_0_20px_-8px_rgba(34,211,238,0.5)]" : ""
               }`}
               style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
             >

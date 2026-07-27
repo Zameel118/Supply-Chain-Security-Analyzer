@@ -16,6 +16,24 @@ from app.services.license_scan import LicenseHit, scan_dependencies_for_licenses
 from app.services.secret_scan import SecretHit, scan_repo_secrets
 from app.services.typosquat import TyposquatHit, scan_dependencies_for_typosquats
 from app.services.vuln_scan import VulnHit, scan_dependencies_for_vulns
+from app.services.finding_text import prepare_finding_fields
+
+
+def _add_finding(db: Session, scan: Scan, created: list[Finding], **fields) -> Finding:
+    title = fields.pop("title")
+    description = fields.pop("description")
+    remediation = fields.pop("remediation", None)
+    file_path = fields.pop("file_path", None)
+    text = prepare_finding_fields(
+        title=title,
+        description=description,
+        remediation=remediation,
+        file_path=file_path,
+    )
+    finding = Finding(scan_id=scan.id, **fields, **text)
+    db.add(finding)
+    created.append(finding)
+    return finding
 
 
 def _nearest_direct_ancestor(db: Session, dep: Dependency) -> Dependency | None:
@@ -58,8 +76,10 @@ def persist_vulnerability_findings(db: Session, scan: Scan) -> list[Finding]:
             continue
         seen_keys.add(key)
 
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.vulnerability,
             severity=hit.severity,
             title=hit.title,
@@ -67,8 +87,6 @@ def persist_vulnerability_findings(db: Session, scan: Scan) -> list[Finding]:
             remediation=hit.remediation,
             dependency_id=hit.dependency_id,
         )
-        db.add(finding)
-        created.append(finding)
 
         dep = by_id.get(hit.dependency_id)
         if dep is None or dep.is_direct:
@@ -84,8 +102,10 @@ def persist_vulnerability_findings(db: Session, scan: Scan) -> list[Finding]:
             continue
         seen_keys.add(prop_key)
 
-        propagated = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.vulnerability,
             severity=hit.severity,
             title=f"{hit.osv_id} via transitive {dep.name}@{dep.version}",
@@ -100,8 +120,6 @@ def persist_vulnerability_findings(db: Session, scan: Scan) -> list[Finding]:
             ),
             dependency_id=direct.id,
         )
-        db.add(propagated)
-        created.append(propagated)
 
     db.commit()
     return created
@@ -123,8 +141,10 @@ def persist_typosquat_findings(db: Session, scan: Scan) -> list[Finding]:
 
     created: list[Finding] = []
     for hit in hits:
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.typosquat,
             severity=hit.severity,
             title=hit.title,
@@ -132,8 +152,6 @@ def persist_typosquat_findings(db: Session, scan: Scan) -> list[Finding]:
             remediation=hit.remediation,
             dependency_id=hit.dependency_id,
         )
-        db.add(finding)
-        created.append(finding)
 
     db.commit()
     return created
@@ -161,8 +179,10 @@ def persist_dep_confusion_findings(db: Session, scan: Scan) -> list[Finding]:
 
     created: list[Finding] = []
     for hit in hits:
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.dep_confusion,
             severity=hit.severity,
             title=hit.title,
@@ -170,8 +190,6 @@ def persist_dep_confusion_findings(db: Session, scan: Scan) -> list[Finding]:
             remediation=hit.remediation,
             dependency_id=hit.dependency_id,
         )
-        db.add(finding)
-        created.append(finding)
 
     db.commit()
     return created
@@ -194,8 +212,10 @@ def persist_cicd_findings(
     hits: list[CicdHit] = scan_repo_cicd(access_token, owner, repo, default_branch)
     created: list[Finding] = []
     for hit in hits:
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.cicd,
             severity=hit.severity,
             title=hit.title,
@@ -205,8 +225,6 @@ def persist_cicd_findings(
             file_path=hit.file_path,
             line_number=hit.line_number,
         )
-        db.add(finding)
-        created.append(finding)
 
     db.commit()
     return created
@@ -229,8 +247,10 @@ def persist_secret_findings(
     hits: list[SecretHit] = scan_repo_secrets(access_token, owner, repo, default_branch)
     created: list[Finding] = []
     for hit in hits:
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.secret,
             severity=hit.severity,
             title=hit.title,
@@ -240,8 +260,6 @@ def persist_secret_findings(
             file_path=hit.file_path,
             line_number=hit.line_number,
         )
-        db.add(finding)
-        created.append(finding)
 
     db.commit()
     return created
@@ -259,8 +277,10 @@ def persist_license_findings(db: Session, scan: Scan) -> list[Finding]:
 
     created: list[Finding] = []
     for hit in hits:
-        finding = Finding(
-            scan_id=scan.id,
+        _add_finding(
+            db,
+            scan,
+            created,
             type=FindingType.license,
             severity=hit.severity,
             title=hit.title,
@@ -268,8 +288,6 @@ def persist_license_findings(db: Session, scan: Scan) -> list[Finding]:
             remediation=hit.remediation,
             dependency_id=hit.dependency_id,
         )
-        db.add(finding)
-        created.append(finding)
 
     db.commit()
     return created

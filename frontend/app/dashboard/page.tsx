@@ -10,6 +10,7 @@ import {
   RiskPulse,
   WatchlistPanel,
 } from "@/components/DashboardExtras";
+import { DashboardLiveTape } from "@/components/DashboardLiveTape";
 import { LiveFeed } from "@/components/LiveFeed";
 import { ScanForm } from "@/components/ScanForm";
 import { StatusBoard } from "@/components/StatusBoard";
@@ -98,6 +99,9 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" href="/guide" className="!py-2 !text-xs">
+            SOP guide
+          </Button>
           <Button
             variant="secondary"
             type="button"
@@ -119,9 +123,9 @@ export default function DashboardPage() {
       </div>
 
       {running.length > 0 ? (
-        <div className="mb-4 flex flex-wrap items-center gap-2 border border-stamp-amber/30 bg-stamp-amber/10 px-3 py-2">
-          <span className="h-2 w-2 rounded-full bg-stamp-amber quay-pulse" />
-          <p className="font-mono text-xs text-stamp-amber">
+        <div className="mb-4 flex flex-wrap items-center gap-2 border border-signal-cyan/35 bg-signal-cyan/10 px-3 py-2 quay-live-panel">
+          <span className="h-2 w-2 rounded-full bg-signal-cyan quay-pulse" />
+          <p className="font-mono text-xs text-signal-cyan">
             {running.length} inspection{running.length === 1 ? "" : "s"} on the belt
           </p>
           {running.slice(0, 2).map((s) => (
@@ -136,6 +140,8 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : null}
+
+      <DashboardLiveTape scans={scans} />
 
       <div className="mb-5" data-tour="board">
         <StatusBoard scans={scans} />

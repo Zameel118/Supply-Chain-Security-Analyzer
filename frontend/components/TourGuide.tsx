@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const TOUR_KEY = "quaywatch_tour_seen";
+const TARGET_CLASS = "quay-tour-target";
 
 type Step = {
   id: string;
@@ -67,12 +68,12 @@ const STEPS: Step[] = [
     id: "help",
     target: "help",
     title: "You are live",
-    body: "Reopen this guide anytime with Tour (or press ?). Tip: use the left rail Live badge to jump straight to the feed.",
+    body: "Reopen this guide anytime with Tour (or press ?). Full SOP with screenshots: /guide",
     placement: "bottom",
   },
 ];
 
-const PAD = 10;
+const PAD = 12;
 
 function getRect(selector: string) {
   const el = document.querySelector(`[data-tour="${selector}"]`);
@@ -87,6 +88,53 @@ function getRect(selector: string) {
     right: r.right + PAD,
     el,
   };
+}
+
+function TourDim({
+  rect,
+  onDismiss,
+}: {
+  rect: ReturnType<typeof getRect>;
+  onDismiss: () => void;
+}) {
+  const shade = "fixed z-[200] bg-ink-950/90 backdrop-blur-[3px]";
+  if (!rect) {
+    return <button type="button" className={`fixed inset-0 ${shade}`} onClick={onDismiss} aria-label="Close tour" />;
+  }
+  const { top, left, width, height } = rect;
+  const bottom = top + height;
+  const right = left + width;
+  return (
+    <>
+      <button type="button" className={`${shade} inset-x-0 top-0`} style={{ height: Math.max(0, top) }} onClick={onDismiss} aria-hidden />
+      <button
+        type="button"
+        className={shade}
+        style={{ top, left: 0, width: Math.max(0, left), height }}
+        onClick={onDismiss}
+        aria-hidden
+      />
+      <button
+        type="button"
+        className={shade}
+        style={{ top, left: right, right: 0, height }}
+        onClick={onDismiss}
+        aria-hidden
+      />
+      <button
+        type="button"
+        className={shade}
+        style={{ top: bottom, left: 0, right: 0, bottom: 0 }}
+        onClick={onDismiss}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed z-[205] rounded-sm border-2 border-signal-teal shadow-[0_0_0_1px_rgba(255,61,129,0.4),0_0_40px_rgba(255,61,129,0.35)]"
+        style={{ top, left, width, height }}
+        aria-hidden
+      />
+    </>
+  );
 }
 
 function tooltipStyle(
@@ -146,12 +194,21 @@ export function TourGuide({ open, onClose, onAction }: Props) {
   const [bodyKey, setBodyKey] = useState(0);
   const tipRef = useRef<HTMLDivElement>(null);
   const [tipSize, setTipSize] = useState({ w: 360, h: 200 });
+  const highlightedRef = useRef<Element | null>(null);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
+  const clearHighlight = useCallback(() => {
+    if (highlightedRef.current) {
+      highlightedRef.current.classList.remove(TARGET_CLASS);
+      highlightedRef.current = null;
+    }
+  }, []);
+
   const measure = useCallback(() => {
     if (!open || !current) return;
+    clearHighlight();
     if (!current.target) {
       setRect(null);
       return;
@@ -159,9 +216,11 @@ export function TourGuide({ open, onClose, onAction }: Props) {
     const r = getRect(current.target);
     setRect(r);
     if (r?.el) {
+      r.el.classList.add(TARGET_CLASS);
+      highlightedRef.current = r.el;
       r.el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     }
-  }, [open, current]);
+  }, [open, current, clearHighlight]);
 
   useLayoutEffect(() => {
     if (!open) {
@@ -200,7 +259,13 @@ export function TourGuide({ open, onClose, onAction }: Props) {
     };
   }, [open, step, measure]);
 
+  useEffect(() => {
+    if (!open) clearHighlight();
+    return () => clearHighlight();
+  }, [open, clearHighlight]);
+
   function finish() {
+    clearHighlight();
     try {
       localStorage.setItem(TOUR_KEY, "1");
     } catch {
@@ -242,19 +307,7 @@ export function TourGuide({ open, onClose, onAction }: Props) {
 
   return (
     <div className="tour-root" role="dialog" aria-modal="true" aria-label="Product tour">
-      <div className="tour-backdrop" onClick={finish} aria-hidden />
-      {rect ? (
-        <div
-          className="tour-spotlight"
-          style={{
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-          }}
-          aria-hidden
-        />
-      ) : null}
+      <TourDim rect={rect} onDismiss={finish} />
 
       <div
         ref={tipRef}
@@ -263,7 +316,7 @@ export function TourGuide({ open, onClose, onAction }: Props) {
       >
         <div className="flex items-center justify-between gap-2 border-b border-manifest-200/15 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="shrink-0 font-mono text-[10px] tabular-nums text-signal-teal">
+            <span className="shrink-0 font-mono text-[10px] tabular-nums text-signal-cyan">
               {String(step + 1).padStart(2, "0")}/{String(STEPS.length).padStart(2, "0")}
             </span>
             <h2
@@ -338,7 +391,7 @@ export function TourGuide({ open, onClose, onAction }: Props) {
             <button
               type="button"
               onClick={next}
-              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-ink-950 hover:bg-signal-tealDim"
+              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-white hover:bg-signal-tealDim"
             >
               {isLast ? "Finish" : "Next →"}
             </button>

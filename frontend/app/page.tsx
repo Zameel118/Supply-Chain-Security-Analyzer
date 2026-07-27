@@ -47,6 +47,9 @@ export default function HomePage() {
                 <Button variant="secondary" href="/dashboard" className="!px-7 !py-3.5 !text-base">
                   Enter ops console →
                 </Button>
+                <Button variant="secondary" href="/guide" className="!px-7 !py-3.5 !text-base">
+                  User SOP guide
+                </Button>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3 font-mono text-[11px] text-stamp-slate">

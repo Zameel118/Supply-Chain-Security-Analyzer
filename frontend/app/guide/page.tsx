@@ -300,6 +300,34 @@ export default function UserGuidePage() {
               repository.
             </p>
           </Section>
+
+          <Section id="troubleshoot" title="9. If an inspection fails">
+            <p>
+              A red error on the scan page usually means the worker hit a server issue, not that your
+              repo is “unsafe.” Common cases:
+            </p>
+            <ul className="list-disc space-y-2 pl-5">
+              <li>
+                <strong>Database / migration</strong> — after upgrades, Render runs migrations on
+                deploy. If a scan failed with “value too long for type character varying”, redeploy the
+                API (migration <code className="font-mono text-xs">0003_finding_title_text</code>)
+                and re-run the inspection.
+              </li>
+              <li>
+                <strong>GitHub token</strong> — log out and sign in again; private repos need{" "}
+                <code className="font-mono text-xs">?private=true</code> login.
+              </li>
+              <li>
+                <strong>Rate limits</strong> — very large repos may time out on free tier; retry or
+                scan a smaller default branch snapshot.
+              </li>
+            </ul>
+            <p>
+              Partial results may still appear in summary cards if parsing finished before the error.
+              Check Render logs for <code className="font-mono text-xs">quaywatch-api</code> if
+              failures repeat.
+            </p>
+          </Section>
         </div>
 
         <p className="mt-12 text-center font-mono text-[11px] text-stamp-slate">
