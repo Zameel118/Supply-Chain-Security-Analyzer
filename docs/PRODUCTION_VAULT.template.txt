@@ -1,0 +1,41 @@
+# Copy to your password manager (1Password, Bitwarden, etc.)
+# Filename suggestion: quaywatch-production-vault.txt
+# Do NOT commit this file with real values filled in.
+
+Quaywatch production credential vault
+=====================================
+
+GitHub OAuth (production app)
+  Client ID:
+  Client Secret:
+  Callback URL: https://quaywatch-api.onrender.com/api/auth/github/callback
+  Homepage URL: https://supply-chain-security-analyzer.vercel.app
+
+Render (quaywatch-api environment)
+  SECRET_KEY:
+  TOKEN_ENCRYPTION_KEY:          # Fernet — do not rotate casually
+  GITHUB_CLIENT_ID:
+  GITHUB_CLIENT_SECRET:
+  GITHUB_OAUTH_REDIRECT_URI:
+  FRONTEND_URL:
+  CORS_ORIGINS:
+  Service URL: https://quaywatch-api.onrender.com
+
+Vercel (frontend)
+  Project name:
+  NEXT_PUBLIC_API_URL: https://quaywatch-api.onrender.com
+
+Render infrastructure IDs (for support / upgrades)
+  Blueprint ID:
+  API service ID:
+  Postgres instance name: quaywatch-db
+  Redis instance name: quaywatch-redis
+
+Domains
+  Frontend: https://supply-chain-security-analyzer.vercel.app
+  API: https://quaywatch-api.onrender.com
+
+Notes
+  - Created:
+  - Last secret rotation:
+  - Free tier: Celery runs inside quaywatch-api (no separate worker)

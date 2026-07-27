@@ -1,8 +1,9 @@
 {
   "name": "supply-chain-security-analyzer-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prebuild": "node ../scripts/sync-version.mjs sync",
     "dev": "next dev --hostname 0.0.0.0 --port 3000",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port 3000",

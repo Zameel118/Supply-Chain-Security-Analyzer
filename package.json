@@ -1,0 +1,12 @@
+{
+  "name": "quaywatch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quaywatch monorepo — use npm run version:patch|minor|major before releases",
+  "scripts": {
+    "version:sync": "node scripts/sync-version.mjs sync",
+    "version:patch": "node scripts/sync-version.mjs patch",
+    "version:minor": "node scripts/sync-version.mjs minor",
+    "version:major": "node scripts/sync-version.mjs major"
+  }
+}

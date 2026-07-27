@@ -15,6 +15,7 @@ import {
   type Scan,
   type User,
 } from "@/lib/api";
+import { getAppVersion } from "@/lib/version";
 
 function IconOps({ className = "" }: { className?: string }) {
   return (
@@ -365,6 +366,9 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
           <p className="font-mono text-[11px] uppercase tracking-wider text-stamp-slate">
             Quaywatch · inspection console ·{" "}
             <span className="text-signal-teal quay-board-live">live</span>
+            <span className="ml-2 text-[10px] normal-case text-stamp-slate/80">
+              v{getAppVersion()}
+            </span>
           </p>
           <div className="flex items-center gap-3">
             {onOpenTour ? (

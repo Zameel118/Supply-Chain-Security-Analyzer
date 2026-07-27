@@ -1,164 +1,201 @@
 # Quaywatch
 
-Harbor watch for your software supply chain. Sign in with GitHub, inspect a repository,
-and clear or hold cargo — dependency vulnerabilities, typosquats, dependency confusion,
-CI/CD risks, secret leaks, and license compliance.
+**Version 1.0.0** · Harbor watch for your software supply chain.
 
-**Static analysis only** — repository code is never executed, installed, or evaluated.
+Sign in with GitHub, run a static inspection on a repository, and review vulnerabilities,
+typosquats, dependency confusion, CI/CD risks, secret patterns, and license holds.
+**Scanned code is never executed** — analysis uses the GitHub Contents API and public registries only.
 
-Formerly prototyped as “Supply Chain Security Analyzer”; product name is **Quaywatch**.
+| | |
+|---|---|
+| **Frontend** | [supply-chain-security-analyzer.vercel.app](https://supply-chain-security-analyzer.vercel.app) |
+| **API** | [quaywatch-api.onrender.com](https://quaywatch-api.onrender.com) |
+| **Health** | `GET /health` → `status`, `service`, `version` |
+
+---
+
+## Features
+
+- GitHub OAuth (public repos by default; `?private=true` for `repo` scope)
+- Seven-stage checkpoint belt (parsing → OSV → typosquats → confusion → CI/CD → secrets → licenses)
+- Ops dashboard with live feed, risk pulse, watchlist, and scan history
+- Manifest ledger, dependency graph (React Flow), severity charts, trend sparkline
+- JSON/PDF export, public share links (`/report/{token}`), embeddable SVG badges
+- Scan diff vs previous run on the same repo (+new / resolved)
+
+---
 
 ## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
-| Jobs | Celery + Redis (+ optional Beat for re-scans) |
+| Layer | Technology |
+|-------|------------|
+| API | Python 3.12, FastAPI, SQLAlchemy, Alembic |
+| Workers | Celery + Redis (in-process on Render free tier) |
 | Database | PostgreSQL |
-| Frontend | Next.js (App Router), TypeScript, Tailwind, Recharts, React Flow |
-| Vulns | [OSV.dev](https://api.osv.dev) (no API key) |
+| Frontend | Next.js 15 (App Router), TypeScript, Tailwind, Recharts, React Flow |
+| Vulnerabilities | [OSV.dev](https://api.osv.dev) (no API key) |
 | Local dev | Docker Compose |
-| Production | API/worker/DB/Redis on [Render](https://render.com); frontend on [Vercel](https://vercel.com) |
+| Production | Render (API, Postgres, Redis) + Vercel (frontend) |
+
+---
 
 ## Architecture
 
 ```
-Browser ──► Vercel (Next.js) ──► Render web (FastAPI)
-                                      │
-                                      ├─► Postgres (scans, users, findings)
-                                      └─► Redis ──► Celery worker (+ optional beat)
-                                              │
-                                              └─► GitHub Contents API / OSV / registries
+Browser → Vercel (Next.js)
+              ↓ credentials: include
+         Render (FastAPI + Celery worker in same web dyno on free plan)
+              ├── Postgres
+              ├── Redis
+              └── GitHub API · OSV · npm/PyPI metadata
 ```
 
-OAuth runs on **FastAPI** so workers can use an encrypted GitHub token. The session
-cookie is set on the API host; production uses `SameSite=None; Secure` so the Vercel
-origin can call the API with `credentials: "include"`.
+OAuth and session cookies are issued by the **API** host. Production uses
+`SameSite=None; Secure` cookies so the Vercel origin can call the API cross-site.
 
-## Phase status
+---
 
-- [x] Phases 0–8 — Core product + Quaywatch UI overhaul
-- [x] Phase 9 — Deployment (Render + Vercel)
-
-## Auth
-
-Default OAuth scope is `read:user public_repo`. Private repos need re-authorize with
-`?private=true`. `SECRET_KEY` and `TOKEN_ENCRYPTION_KEY` are required (no placeholders).
-
-## Local quick start
+## Local development
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [GitHub OAuth App](https://github.com/settings/developers) with callback
-  `http://localhost:8000/api/auth/github/callback`
+- GitHub OAuth app with callback `http://localhost:8000/api/auth/github/callback`
 
-### Steps
+### Setup
 
 ```bash
+git clone https://github.com/Zameel118/Supply-Chain-Security-Analyzer.git
+cd Supply-Chain-Security-Analyzer
 cp .env.example .env
-# fill GITHUB_CLIENT_ID / SECRET, SECRET_KEY, TOKEN_ENCRYPTION_KEY
-docker compose up --build
 ```
 
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| Dashboard | http://localhost:3000/dashboard |
-| API health | http://localhost:8000/health |
-| API docs | http://localhost:8000/docs |
-
-Generate secrets (stdlib only — no `pip install` needed):
+Generate secrets (no extra Python packages required):
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 python -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
 ```
 
-Or via Docker: `docker compose exec backend python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
+Fill `.env`: `SECRET_KEY`, `TOKEN_ENCRYPTION_KEY`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`.
 
-## Features
+```bash
+docker compose up --build
+```
 
-- Checkpoint belt progress during scans
-- Live action feed on the ops console
-- Manifest ledger findings with StampBadges
-- Dependency graph + severity charts + finding trend sparkline
-- Public share links (`/report/{token}`) and embeddable SVG badges
-- Since-last-scan regression diff (+new / resolved)
-- Optional periodic re-scans via Celery Beat (`PERIODIC_RESCAN_ENABLED=true`)
+| Service | URL |
+|---------|-----|
+| App | http://localhost:3000 |
+| API docs | http://localhost:8000/docs |
+| Health | http://localhost:8000/health |
 
-## Security note
-
-Scans read manifests, lockfiles, CI configs, and source text only via the GitHub Contents API.
-Dependencies from scanned repos are **never** installed or run.
+Optional Celery beat (periodic re-scans): `docker compose --profile beat up`
 
 ---
 
-## Production deploy (Phase 9)
+## Versioning
 
-Do **not** copy secrets from your laptop `.env` into Render/Vercel. Generate fresh values.
+Single source of truth: **`VERSION`** at the repo root (currently **1.0.0**).
 
-### 1. GitHub OAuth App (production)
+| Surface | How version is exposed |
+|---------|-------------------------|
+| UI shell | `v1.0.0` in the ops header (`NEXT_PUBLIC_APP_VERSION`) |
+| API | `/health` and OpenAPI `info.version` |
+| npm | `frontend/package.json` (synced on build) |
 
-Create a second OAuth app (or update the existing one) at
-https://github.com/settings/developers:
+Bump before a release:
 
-| Field | Value |
-|-------|--------|
-| Homepage URL | your Vercel URL (e.g. `https://quaywatch.vercel.app`) |
-| Authorization callback URL | `https://<quaywatch-api>.onrender.com/api/auth/github/callback` |
+```bash
+npm run version:patch   # or version:minor / version:major
+git add VERSION backend/VERSION frontend/package.json package.json
+git commit -m "chore: release v1.0.1"
+```
 
-You will know the exact Render hostname after step 2; you can edit the callback once.
+Vercel `prebuild` runs `sync-version` automatically so deploys stay aligned with `VERSION`.
 
-### 2. Render (API + worker + Postgres + Redis)
+---
 
-Blueprint file: [`render.yaml`](./render.yaml)
+## Production deployment
 
-1. Push this repo to GitHub.
-2. Render Dashboard → **New** → **Blueprint** → select the repo.
-3. Fill **sync: false** env vars when prompted (fresh secrets only):
+Infrastructure is defined in **`render.yaml`** (free tier: API + Postgres + Redis; Celery runs inside the web service).
 
-| Variable | How to set |
-|----------|------------|
-| `TOKEN_ENCRYPTION_KEY` | New Fernet key (command above) |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | Production OAuth app |
-| `GITHUB_OAUTH_REDIRECT_URI` | `https://<api-host>/api/auth/github/callback` |
-| `FRONTEND_URL` | `https://<your-app>.vercel.app` (set after Vercel, or use the planned URL) |
-| `CORS_ORIGINS` | Same as `FRONTEND_URL` (comma-separate if you have previews) |
+### Environment variables
 
-`SECRET_KEY` can use Render’s generated value. `DATABASE_URL` / `REDIS_URL` come from the blueprint.
+**Render (`quaywatch-api`)**
 
-4. After deploy, open `https://<api-host>/health` — expect `{"status":"ok"}` (or similar).
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY` | JWT session signing |
+| `TOKEN_ENCRYPTION_KEY` | Fernet encryption for GitHub tokens in DB |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OAuth |
+| `GITHUB_OAUTH_REDIRECT_URI` | Must match GitHub app callback |
+| `FRONTEND_URL` | Vercel URL (no trailing slash) |
+| `CORS_ORIGINS` | Same as frontend origin |
+| `DATABASE_URL` / `REDIS_URL` | From Blueprint |
 
-**Free plan note:** Render does **not** allow Background Workers on free.
-`render.yaml` only creates API + Postgres + Redis. Celery runs **inside**
-`quaywatch-api` via `backend/scripts/start_web.sh`. Optional paid workers:
-[`render.workers.yaml`](./render.workers.yaml).
+**Vercel (`frontend`)**
 
-5. Keep `PERIODIC_RESCAN_ENABLED=false` on free unless you add a paid Beat worker.
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_API_URL` | Render API URL (no trailing slash) |
 
-### 3. Vercel (frontend)
+Use a **production-only** GitHub OAuth app. Never copy local `.env` secrets to Render.
 
-1. Vercel → **Add New Project** → import the same repo.
-2. **Root Directory:** `frontend`
-3. Framework: Next.js (auto).
-4. Environment variable:
+### Credentials to store offline
 
-| Name | Value |
-|------|--------|
-| `NEXT_PUBLIC_API_URL` | `https://<quaywatch-api>.onrender.com` (no trailing slash) |
+Use `docs/PRODUCTION_VAULT.template.txt` in your password manager. Keep:
 
-5. Deploy. Copy the production URL into Render’s `FRONTEND_URL` and `CORS_ORIGINS`, then **Manual Deploy** the API so cookies/CORS pick up the change.
-6. Confirm GitHub OAuth homepage + callback match the live URLs.
+- All Render secret env vars (especially `TOKEN_ENCRYPTION_KEY`)
+- GitHub OAuth client ID + **secret**
+- Vercel project link and env
+- Render blueprint / service IDs (for support tickets)
+- Domain URLs and OAuth callback URL
 
-### 4. Smoke checklist
+See **[SECURITY.md](./SECURITY.md)** for rotation steps if something leaks.
 
-- [ ] `GET /health` on Render returns OK  
-- [ ] Landing page loads on Vercel  
-- [ ] **Sign in with GitHub** lands on `/dashboard` and stays logged in  
-- [ ] Start a public-repo scan; worker moves through checkpoint phases  
-- [ ] Open a completed scan; share link + badge SVG work  
+### Paid Render upgrade
 
-### Optional: production frontend Docker
+To run a dedicated Celery worker and beat, see **`render.workers.yaml`** (Starter plan+).
 
-[`frontend/Dockerfile.prod`](./frontend/Dockerfile.prod) builds a standalone Next image if you prefer hosting the UI somewhere other than Vercel. Pass `NEXT_PUBLIC_API_URL` as a build arg.
+---
+
+## Security
+
+- Required `SECRET_KEY` and `TOKEN_ENCRYPTION_KEY` at startup (placeholders rejected)
+- GitHub tokens encrypted at rest; never returned by API
+- OAuth `state` in Redis; rate limits on auth and scan creation
+- Public reports: read-only, token-gated; badge SVG exposes status only
+- Activity feed scoped per authenticated user
+
+**Repository hygiene:** `.env` is gitignored. Dev-only passwords in `docker-compose.yml` are not production credentials.
+
+---
+
+## Project layout
+
+```
+backend/          FastAPI, Celery tasks, Alembic migrations
+frontend/         Next.js App Router UI
+render.yaml       Render Blueprint (free tier)
+render.workers.yaml   Optional paid workers
+scripts/          sync-version.mjs
+docs/             PRODUCTION_VAULT.template.txt
+VERSION           Release version (edit or bump via npm scripts)
+```
+
+---
+
+## License
+
+Portfolio / educational project. Add a license file if you open-source formally.
+
+---
+
+## Changelog
+
+### 1.0.0
+
+- Quaywatch UI overhaul, checkpoint belt, share links, badges, scan diff
+- Production deploy on Render + Vercel
+- Security hardening (OAuth CSRF, cookie policy, required secrets)
+- Unified versioning across API and frontend

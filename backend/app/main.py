@@ -8,13 +8,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import auth, health, scans
 from app.core.config import get_settings
+from app.core.version import get_app_version
 
 settings = get_settings()
+_app_version = get_app_version()
 
 app = FastAPI(
     title="Quaywatch",
     description="Harbor watch for your software supply chain — dependencies, CI/CD, secrets, licenses.",
-    version="0.2.0",
+    version=_app_version,
 )
 
 app.add_middleware(

@@ -13,6 +13,13 @@ def test_normalize_postgres_url_from_render() -> None:
     assert "user:pass@host:5432/db" in settings.database_url
 
 
+def test_app_version_readable() -> None:
+    from app.core.version import get_app_version
+
+    v = get_app_version()
+    assert v and "." in v
+
+
 def test_cookie_samesite_cross_origin_when_secure() -> None:
     local = Settings(
         secret_key="unit-test-secret-key-not-for-prod",
