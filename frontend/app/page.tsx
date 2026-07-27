@@ -30,8 +30,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative grid items-stretch gap-5 lg:grid-cols-12 lg:gap-6">
-            <div className="flex flex-col justify-center lg:col-span-4">
+          <div className="relative grid items-stretch gap-5 xl:grid-cols-12 xl:gap-6">
+            <div className="flex flex-col justify-center xl:col-span-4">
               <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-signal-cyan quay-pulse" />
                 <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-cyan">
@@ -56,11 +56,8 @@ export default function HomePage() {
                 <Button href={loginUrl} className="!px-7 !py-3.5 !text-base">
                   Sign in with GitHub
                 </Button>
-                <Button variant="secondary" href="/dashboard" className="!px-7 !py-3.5 !text-base">
-                  Enter ops console →
-                </Button>
-                <Button variant="secondary" href="/guide" className="!px-7 !py-3.5 !text-base">
-                  User SOP guide
+                <Button variant="secondary" href="#live-arsenal" className="!px-7 !py-3.5 !text-base">
+                  View live arsenal
                 </Button>
               </div>
 
@@ -81,11 +78,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="xl:col-span-5">
               <HeroConsole />
             </div>
 
-            <div className="flex min-h-[420px] lg:col-span-3">
+            <div className="flex min-h-[34rem] xl:col-span-3">
               <HeroSignalRail />
             </div>
           </div>
@@ -126,7 +123,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="w-full px-4 pb-12 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+      <section id="live-arsenal" className="w-full px-4 pb-12 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-cyan">

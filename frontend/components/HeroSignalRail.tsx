@@ -104,7 +104,7 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex h-full min-h-[420px] w-full flex-col overflow-hidden quay-live-panel quay-scanlines">
+    <aside className="relative flex h-full min-h-[34rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines">
       <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (
@@ -133,7 +133,7 @@ export function HeroSignalRail() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] border-b border-manifest-200/10 px-3 py-3">
+      <div className="relative z-[1] border-b border-manifest-200/10 px-3 py-3 xl:px-4 xl:py-4">
         <div className="mb-2 flex items-end justify-between gap-2">
           <div>
             <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
@@ -165,7 +165,7 @@ export function HeroSignalRail() {
         </div>
       </div>
 
-      <ol className="relative z-[1] flex gap-1 px-2.5 py-2.5">
+      <ol className="relative z-[1] flex gap-1 px-2.5 py-3 xl:px-4">
         {STAGES.map((stage, i) => {
           const done = i < active;
           const current = i === active;
@@ -193,13 +193,13 @@ export function HeroSignalRail() {
       </ol>
 
       <div className="relative z-[1] flex flex-1 flex-col border-t border-manifest-200/10">
-        <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center justify-between px-3 py-2 xl:px-4 xl:py-3">
           <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
             Ingress stream
           </p>
           <span className="font-mono text-[9px] text-signal-cyan quay-board-live">stream</span>
         </div>
-        <ul className="flex flex-1 flex-col gap-1.5 overflow-hidden px-2.5 pb-3">
+        <ul className="flex flex-1 flex-col justify-start gap-2 overflow-hidden px-2.5 pb-3 xl:px-4 xl:pb-4">
           {feed.map((row, i) => (
             <li
               key={`${row.t}-${row.msg}-${i}`}

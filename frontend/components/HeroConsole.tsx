@@ -45,9 +45,9 @@ export function HeroConsole() {
   const shown = LINES.slice(0, visible);
 
   return (
-    <div className="relative flex h-full min-h-[420px] flex-col overflow-hidden quay-live-panel quay-scanlines">
+    <div className="relative flex h-full min-h-[34rem] flex-col overflow-hidden quay-live-panel quay-scanlines">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/20 blur-3xl" />
-      <div className="pointer-events-none absolute -left-8 bottom-0 h-32 w-32 rounded-full bg-signal-cyan/12 blur-3xl" />
+      <div className="pointer-events-none absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-signal-cyan/12 blur-3xl" />
 
       <div className="relative z-[1] quay-live-header flex items-center justify-between px-4 py-2.5">
         <div className="flex items-center gap-2">
@@ -60,32 +60,34 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] grid flex-1 grid-cols-[1fr_auto] gap-0">
-        <div className="relative flex min-h-[200px] items-center justify-center border-r border-signal-teal/15 p-6">
-          <div className="quay-radar absolute inset-6 opacity-90" aria-hidden />
-          <div className="relative z-10 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-stamp-slate">
-              Threat sweep
-            </p>
-            <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-signal-cyan quay-count-glow">
-              07
-            </p>
-            <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+      <div className="relative z-[1] grid h-[26rem] grid-cols-[minmax(0,1fr)_12rem] gap-0 xl:h-[28rem] xl:grid-cols-[minmax(0,1fr)_13rem]">
+        <div className="relative flex items-center justify-center border-r border-signal-teal/15 p-6 xl:p-8">
+          <div className="relative flex h-[17.5rem] w-[17.5rem] shrink-0 items-center justify-center xl:h-[19.5rem] xl:w-[19.5rem]">
+            <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
+            <div className="relative z-10 text-center">
+              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-stamp-slate">
+                Threat sweep
+              </p>
+              <p className="mt-2 font-mono text-5xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-6xl">
+                07
+              </p>
+              <p className="mt-2 font-mono text-xs text-manifest-200/60">checkpoints armed</p>
+            </div>
           </div>
         </div>
 
-        <div className="w-[9.5rem] space-y-2 bg-black/25 p-3 sm:w-44">
+        <div className="flex flex-col justify-center gap-3 bg-black/25 p-3 xl:p-4">
           <StampBadge severity="cleared" seed="hero-ok" size="sm" />
           <StampBadge severity="high" seed="hero-hi" size="sm" />
           <StampBadge severity="medium" seed="hero-md" size="sm" />
-          <div className="border border-signal-teal/20 bg-ink-900/90 px-2 py-2">
+          <div className="border border-signal-teal/20 bg-ink-900/90 px-3 py-3">
             <p className="font-mono text-[9px] uppercase text-stamp-slate">Latency</p>
-            <p className="font-mono text-sm tabular-nums text-signal-cyan">{latency.toFixed(1)}s</p>
+            <p className="mt-1 font-mono text-2xl tabular-nums text-signal-cyan">{latency.toFixed(1)}s</p>
           </div>
         </div>
       </div>
 
-      <ul className="relative z-[1] min-h-[9rem] space-y-0.5 overflow-hidden border-t border-signal-teal/15 bg-black/30 px-3 py-2.5 font-mono text-[11px]">
+      <ul className="relative z-[1] flex-1 space-y-0.5 border-t border-signal-teal/15 bg-black/30 px-3 py-2.5 font-mono text-[11px] xl:text-[12px]">
         {shown.map((line, i) => (
           <li
             key={`${line.t}-${i}-${visible}`}
