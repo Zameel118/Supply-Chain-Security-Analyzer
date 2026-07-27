@@ -52,7 +52,7 @@ export function TrendSparkline({ scans, repoUrl }: Props) {
             <Line
               type="monotone"
               dataKey="findings"
-              stroke="#2DD4BF"
+              stroke="#34D399"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}

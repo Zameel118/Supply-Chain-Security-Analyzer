@@ -45,7 +45,7 @@ export function HeroConsole() {
   const shown = LINES.slice(0, visible);
 
   return (
-    <div className="relative overflow-hidden quay-live-panel quay-scanlines">
+    <div className="relative overflow-hidden quay-live-panel quay-scanlines quay-hazard-edge">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/15 blur-3xl" />
       <div className="pointer-events-none absolute -left-8 bottom-0 h-32 w-32 rounded-full bg-signal-cyan/10 blur-3xl" />
 

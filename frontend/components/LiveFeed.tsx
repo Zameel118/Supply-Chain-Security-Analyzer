@@ -6,14 +6,14 @@ import { Panel } from "@/components/Panel";
 import { fetchActivity, type ActivityEvent } from "@/lib/api";
 
 function statusTone(status: string | null): string {
-  if (status === "complete") return "border-signal-teal/50 bg-signal-teal/5";
+  if (status === "complete") return "border-signal-lime/50 bg-signal-lime/5";
   if (status === "failed") return "border-stamp-red/50 bg-stamp-red/5";
   if (status === "running") return "border-signal-cyan/50 bg-signal-cyan/5";
   return "border-stamp-slate/40 bg-ink-800/40";
 }
 
 function statusDot(status: string | null): string {
-  if (status === "complete") return "bg-signal-teal";
+  if (status === "complete") return "bg-signal-lime";
   if (status === "failed") return "bg-stamp-red";
   if (status === "running") return "bg-signal-cyan quay-pulse";
   return "bg-stamp-slate";

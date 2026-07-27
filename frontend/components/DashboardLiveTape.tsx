@@ -12,7 +12,7 @@ export function DashboardLiveTape({ scans }: Props) {
 
   const items = [
     { label: "On belt", value: running, tone: "text-signal-cyan" },
-    { label: "Cleared", value: cleared, tone: "text-signal-teal" },
+    { label: "Cleared", value: cleared, tone: "text-signal-lime" },
     { label: "Holds", value: holds, tone: "text-stamp-red" },
     { label: "Findings", value: findings, tone: "text-manifest-100" },
   ];

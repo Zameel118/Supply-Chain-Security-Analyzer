@@ -244,7 +244,7 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
               </div>
               <div className="bg-ink-800/80 px-1.5 py-1">
                 <p className="font-mono text-[8px] text-stamp-slate">CLEARED</p>
-                <p className="font-mono text-sm tabular-nums text-signal-teal">{cleared}</p>
+                <p className="font-mono text-sm tabular-nums text-signal-lime">{cleared}</p>
               </div>
             </div>
           </div>

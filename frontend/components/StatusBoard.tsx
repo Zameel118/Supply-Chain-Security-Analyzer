@@ -27,8 +27,8 @@ export function StatusBoard({ scans }: Props) {
       code: "CLR",
       label: "CLEARED",
       count: complete,
-      tone: "text-signal-teal",
-      bar: "bg-signal-teal",
+      tone: "text-signal-lime",
+      bar: "bg-signal-lime",
     },
     { code: "HLD", label: "HOLD", count: failed, tone: "text-stamp-red", bar: "bg-stamp-red" },
   ];

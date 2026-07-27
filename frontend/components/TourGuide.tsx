@@ -129,7 +129,7 @@ function TourDim({
         aria-hidden
       />
       <div
-        className="pointer-events-none fixed z-[205] rounded-sm border-2 border-signal-teal shadow-[0_0_0_1px_rgba(255,61,129,0.4),0_0_40px_rgba(255,61,129,0.35)]"
+        className="pointer-events-none fixed z-[205] rounded-sm border-2 border-signal-teal shadow-[0_0_0_1px_rgba(56,189,248,0.45),0_0_40px_rgba(245,158,11,0.35)]"
         style={{ top, left, width, height }}
         aria-hidden
       />
@@ -391,7 +391,7 @@ export function TourGuide({ open, onClose, onAction }: Props) {
             <button
               type="button"
               onClick={next}
-              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-white hover:bg-signal-tealDim"
+              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-ink-950 hover:bg-signal-tealDim"
             >
               {isLast ? "Finish" : "Next →"}
             </button>

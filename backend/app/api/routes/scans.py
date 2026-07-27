@@ -229,14 +229,14 @@ def _badge_label(db: Session, scan: Scan) -> tuple[str, str]:
         db.query(func.count(Finding.id)).filter(Finding.scan_id == scan.id).scalar() or 0
     )
     if scan.status != ScanStatus.complete:
-        return "SCANNING", "#F0A93F"
+        return "SCANNING", "#F59E0B"
     if critical:
-        return f"{critical} CRITICAL", "#E14B4B"
+        return f"{critical} CRITICAL", "#F87171"
     if high:
-        return f"{high} HIGH", "#E14B4B"
+        return f"{high} HIGH", "#FB923C"
     if total:
-        return f"{total} FLAGGED", "#F0A93F"
-    return "CLEARED", "#2DD4BF"
+        return f"{total} FLAGGED", "#FBBF24"
+    return "CLEARED", "#34D399"
 
 
 @router.get("/repos", response_model=list[RepoOut])

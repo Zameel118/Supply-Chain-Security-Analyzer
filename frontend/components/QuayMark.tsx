@@ -3,7 +3,7 @@ type Props = {
   className?: string;
 };
 
-/** Radar-ring Q — magenta / cyan / violet on obsidian. */
+/** Shield + chain link — industrial security mark (amber / steel blue). */
 export function QuayMark({ size = 28, className = "" }: Props) {
   return (
     <svg
@@ -15,36 +15,46 @@ export function QuayMark({ size = 28, className = "" }: Props) {
       className={className}
       aria-hidden
     >
-      <rect width="64" height="64" rx="4" fill="#06060A" />
+      <defs>
+        <linearGradient id="qw-scan" x1="8" y1="32" x2="56" y2="32" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F59E0B" stopOpacity="0.9" />
+          <stop offset="0.55" stopColor="#38BDF8" />
+          <stop offset="1" stopColor="#3B82F6" stopOpacity="0.85" />
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="8" fill="#121A24" />
       <path
-        d="M32 6.5a25.5 25.5 0 1 1-18.04 7.46"
-        stroke="#FF3D81"
-        strokeWidth="3.2"
-        strokeLinecap="round"
+        d="M6 14 L14 6 H26 L32 12 L38 6 H50 L58 14 V22"
+        stroke="#F59E0B"
+        strokeWidth="1.2"
+        strokeOpacity="0.35"
       />
       <path
-        d="M32 13a19 19 0 1 1-13.44 5.56"
-        stroke="#22D3EE"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        opacity="0.85"
+        d="M32 9 L50 17 V31.5 C50 42.5 32 52 32 52 C32 52 14 42.5 14 31.5 V17 L32 9Z"
+        fill="rgba(59,130,246,0.14)"
+        stroke="#3B82F6"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
       />
       <path
-        d="M32 19.5a12.5 12.5 0 1 1-8.84 3.66"
-        stroke="#A78BFA"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.7"
+        d="M22 34.5a6.2 6.2 0 0 1 10.8-4.2 6.2 6.2 0 0 1 8.4 8.4 6.2 6.2 0 0 1-10.8 4.2 6.2 6.2 0 0 1-8.4-8.4Z"
+        stroke="#F59E0B"
+        strokeWidth="2.6"
       />
-      <circle cx="32" cy="30" r="10.5" stroke="#F4F4F8" strokeWidth="3.4" />
-      <circle cx="32" cy="28.5" r="3.4" fill="#FF3D81" />
       <path
-        d="M38.2 36.4 48 46.2"
-        stroke="#F4F4F8"
-        strokeWidth="3.6"
-        strokeLinecap="round"
+        d="M34 34.5a5 5 0 0 1 8.6-3.4 5 5 0 0 1 6.8 6.8 5 5 0 0 1-8.6 3.4 5 5 0 0 1-6.8-6.8Z"
+        stroke="#FBBF24"
+        strokeWidth="2.2"
       />
-      <circle cx="48" cy="46.2" r="2.4" fill="#22D3EE" />
+      <path d="M11 33 H53" stroke="url(#qw-scan)" strokeWidth="1.4" strokeLinecap="round" opacity="0.85" />
+      <circle cx="32" cy="33" r="2.2" fill="#38BDF8" />
+      <path
+        d="M32 20 V26 M26 23 H38"
+        stroke="#E8ECF4"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        opacity="0.9"
+      />
     </svg>
   );
 }

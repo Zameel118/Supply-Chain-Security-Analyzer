@@ -10,7 +10,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "quay-btn-primary relative overflow-hidden bg-signal-teal text-white shadow-live-glow hover:bg-signal-tealDim hover:shadow-[0_0_40px_-4px_rgba(255,61,129,0.75)] hover:-translate-y-0.5 active:translate-y-0",
+    "quay-btn-primary relative overflow-hidden bg-signal-teal text-ink-950 shadow-live-glow hover:bg-signal-tealDim hover:shadow-[0_0_40px_-4px_rgba(245,158,11,0.75)] hover:-translate-y-0.5 active:translate-y-0",
   secondary:
     "border border-manifest-200/35 bg-ink-800/50 text-manifest-100 backdrop-blur hover:border-signal-teal hover:bg-signal-teal/10 hover:text-signal-teal hover:-translate-y-0.5",
   ghost:

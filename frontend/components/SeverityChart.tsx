@@ -13,11 +13,11 @@ import {
 import { SEVERITY_ORDER } from "@/lib/risk";
 
 const STAMP_FILL: Record<string, string> = {
-  critical: "#E14B4B",
-  high: "#E14B4B",
-  medium: "#F0A93F",
-  low: "#7C8CA6",
-  info: "#7C8CA6",
+  critical: "#F87171",
+  high: "#FB923C",
+  medium: "#FBBF24",
+  low: "#64748B",
+  info: "#64748B",
 };
 
 type Props = {

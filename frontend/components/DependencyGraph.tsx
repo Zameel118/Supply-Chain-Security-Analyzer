@@ -16,12 +16,12 @@ import { riskForDependency } from "@/lib/risk";
 const MAX_NODES = 80;
 
 const QUAY_COLORS: Record<string, string> = {
-  critical: "#E14B4B",
-  high: "#E14B4B",
+  critical: "#F87171",
+  high: "#FB923C",
   medium: "#F0A93F",
   low: "#7C8CA6",
   info: "#7C8CA6",
-  none: "#2DD4BF",
+  none: "#34D399",
 };
 
 type Props = {
