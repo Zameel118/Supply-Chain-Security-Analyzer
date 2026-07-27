@@ -116,4 +116,18 @@ On **scan detail**:
 ## Help
 
 - In-app: **User guide** / **SOP guide** in the header → `/guide`
-- Interactive: press **?** on the dashboard for the tour
+- Interactive: press **Tour (?)** on the dashboard for the spotlight walkthrough
+
+---
+
+## If an inspection fails
+
+A red error on the scan page is usually a **platform** issue, not proof the repo is compromised.
+
+| Symptom | What to do |
+|--------|------------|
+| `value too long for type character varying(512)` on `findings` | Redeploy **quaywatch-api** on Render so migration `0003_finding_title_text` runs, then re-run the inspection. |
+| OAuth / private repo empty | Sign out and sign in with `?private=true` on the GitHub login URL. |
+| Timeout on huge repos | Retry; free tier has limited worker time. |
+
+Partial counts may still show if parsing finished before the error. Check Render logs for `quaywatch-api` if failures repeat.
