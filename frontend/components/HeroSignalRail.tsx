@@ -91,6 +91,12 @@ export function HeroSignalRail() {
 
   const progress = ((active + 1) / STAGES.length) * 100;
   const stageLabel = STAGES[active]?.label ?? "Parsing";
+  const telemetry = [
+    { label: "Alerts", value: String(hits).padStart(2, "0"), tone: "text-stamp-amber" },
+    { label: "Flow", value: `${Math.round(progress)}%`, tone: "text-signal-cyan" },
+    { label: "Pool", value: String(poolIdx + 1).padStart(2, "0"), tone: "text-signal-lime" },
+    { label: "Nodes", value: "03", tone: "text-manifest-100" },
+  ];
 
   const sparkles = useMemo(
     () =>
@@ -104,7 +110,7 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex h-full min-h-[34rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines">
+    <aside className="relative flex h-full min-h-[34rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines 2xl:min-h-[36rem]">
       <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (
@@ -163,6 +169,17 @@ export function HeroSignalRail() {
             <span className="text-stamp-amber">{hits}</span> flags today
           </span>
         </div>
+      </div>
+
+      <div className="relative z-[1] grid grid-cols-2 gap-px border-b border-manifest-200/10 bg-signal-teal/10">
+        {telemetry.map((item) => (
+          <div key={item.label} className="bg-black/35 px-3 py-2.5 xl:px-4">
+            <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-stamp-slate">
+              {item.label}
+            </p>
+            <p className={`mt-1 font-mono text-sm tabular-nums ${item.tone}`}>{item.value}</p>
+          </div>
+        ))}
       </div>
 
       <ol className="relative z-[1] flex gap-1 px-2.5 py-3 xl:px-4">

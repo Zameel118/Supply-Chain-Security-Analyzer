@@ -45,7 +45,7 @@ export function HeroConsole() {
   const shown = LINES.slice(0, visible);
 
   return (
-    <div className="relative flex h-full min-h-[34rem] flex-col overflow-hidden quay-live-panel quay-scanlines">
+    <div className="relative flex h-full min-h-[34rem] flex-col overflow-hidden quay-live-panel quay-scanlines 2xl:min-h-[36rem]">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/20 blur-3xl" />
       <div className="pointer-events-none absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-signal-cyan/12 blur-3xl" />
 
@@ -60,18 +60,18 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] grid h-[26rem] grid-cols-[minmax(0,1fr)_12rem] gap-0 xl:h-[28rem] xl:grid-cols-[minmax(0,1fr)_13rem]">
+      <div className="relative z-[1] grid h-[26rem] grid-cols-[minmax(0,1fr)_12rem] gap-0 xl:h-[29rem] xl:grid-cols-[minmax(0,1fr)_13rem] 2xl:h-[31rem] 2xl:grid-cols-[minmax(0,1fr)_14rem]">
         <div className="relative flex items-center justify-center border-r border-signal-teal/15 p-6 xl:p-8">
-          <div className="relative flex h-[17.5rem] w-[17.5rem] shrink-0 items-center justify-center xl:h-[19.5rem] xl:w-[19.5rem]">
+          <div className="relative flex h-[17.5rem] w-[17.5rem] shrink-0 items-center justify-center xl:h-[21rem] xl:w-[21rem] 2xl:h-[23rem] 2xl:w-[23rem]">
             <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
             <div className="relative z-10 text-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-stamp-slate">
                 Threat sweep
               </p>
-              <p className="mt-2 font-mono text-5xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-6xl">
+              <p className="mt-2 font-mono text-5xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-6xl 2xl:text-7xl">
                 07
               </p>
-              <p className="mt-2 font-mono text-xs text-manifest-200/60">checkpoints armed</p>
+              <p className="mt-2 font-mono text-xs text-manifest-200/60 2xl:text-sm">checkpoints armed</p>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function HeroConsole() {
         </div>
       </div>
 
-      <ul className="relative z-[1] flex-1 space-y-0.5 border-t border-signal-teal/15 bg-black/30 px-3 py-2.5 font-mono text-[11px] xl:text-[12px]">
+      <ul className="relative z-[1] flex-1 space-y-0.5 border-t border-signal-teal/15 bg-black/30 px-3 py-3 font-mono text-[11px] xl:text-[12px]">
         {shown.map((line, i) => (
           <li
             key={`${line.t}-${i}-${visible}`}

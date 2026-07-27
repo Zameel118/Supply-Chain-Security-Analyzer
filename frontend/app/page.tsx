@@ -30,8 +30,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative grid items-stretch gap-5 xl:grid-cols-12 xl:gap-6">
-            <div className="flex flex-col justify-center xl:col-span-4">
+          <div className="relative grid items-stretch gap-5 xl:grid-cols-12 xl:gap-6 2xl:gap-7">
+            <div className="flex flex-col justify-center xl:col-span-5">
               <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-signal-cyan quay-pulse" />
                 <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-cyan">
@@ -39,7 +39,7 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <h1 className="mt-5 font-display text-4xl font-bold uppercase leading-[0.92] tracking-wide text-manifest-100 sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
+              <h1 className="mt-5 font-display text-4xl font-bold uppercase leading-[0.92] tracking-wide text-manifest-100 sm:text-5xl lg:text-[3.25rem] xl:text-6xl 2xl:text-[4.6rem]">
                 Watch the quay.
                 <br />
                 <span className="bg-gradient-to-r from-manifest-100 via-signal-cyan to-signal-teal bg-clip-text text-transparent">
@@ -47,7 +47,7 @@ export default function HomePage() {
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-manifest-200/85 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-manifest-200/85 sm:text-lg 2xl:max-w-[40rem]">
                 Terminal-grade inspection for GitHub: OSV sweeps, typosquats, CI drift, secret
                 patterns, license holds. Static analysis only — zero code execution on our side.
               </p>
@@ -78,7 +78,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="xl:col-span-5">
+            <div className="xl:col-span-4">
               <HeroConsole />
             </div>
 
