@@ -15,7 +15,7 @@ const LINES = [
   { t: "12:04:31", msg: "badge.svg refreshed", ok: true },
 ];
 
-const TAIL_LINES = 5;
+const VISIBLE_SLOTS = 5;
 
 export function HeroConsole() {
   const [visible, setVisible] = useState(3);
@@ -44,7 +44,7 @@ export function HeroConsole() {
     return () => clearInterval(id);
   }, []);
 
-  const tail = LINES.slice(0, visible).slice(-TAIL_LINES);
+  const tail = LINES.slice(0, visible).slice(-VISIBLE_SLOTS);
 
   return (
     <div className="quay-hero-panel relative flex h-full w-full min-h-0 flex-col overflow-hidden quay-live-panel quay-berth-console quay-scanlines">
@@ -71,9 +71,9 @@ export function HeroConsole() {
         </div>
       </div>
 
-      <div className="relative z-[1] grid min-h-0 flex-1 grid-cols-1 border-t border-signal-teal/10 xl:grid-cols-2">
-        <div className="quay-berth-viz relative flex items-center justify-center border-b border-signal-teal/10 py-5 xl:border-b-0 xl:border-r xl:py-6">
-          <div className="quay-radar-hub relative h-[11.5rem] w-[11.5rem] sm:h-[12.5rem] sm:w-[12.5rem] xl:h-[14rem] xl:w-[14rem]">
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col">
+        <div className="quay-berth-viz relative flex min-h-0 flex-1 items-center justify-center py-2">
+          <div className="quay-radar-hub relative h-[12.5rem] w-[12.5rem] sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[15.5rem] xl:w-[15.5rem]">
             <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
             <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
               <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
@@ -82,34 +82,38 @@ export function HeroConsole() {
               <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl">
                 07
               </p>
-              <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+              <p className="mt-1 font-mono text-[10px] text-manifest-200/60 xl:text-xs">
+                checkpoints armed
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="relative flex min-h-0 flex-col bg-black/45">
-          <div className="flex shrink-0 items-center justify-between border-b border-signal-teal/10 px-3 py-1">
+        <div className="relative shrink-0 border-t border-signal-teal/15 bg-black/45">
+          <div className="flex items-center justify-between border-b border-signal-teal/10 px-3 py-1">
             <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
               shell · berth.log
             </p>
-            <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
+            <span className="font-mono text-[9px] text-signal-lime/80">tail -n {VISIBLE_SLOTS}</span>
           </div>
 
-          <ul className="quay-terminal-log min-h-0 flex-1 space-y-0 overflow-hidden px-3 py-2 font-mono text-[11px] leading-snug">
-            {tail.map((line, i) => (
-              <li
-                key={`${line.t}-${i}-${visible}`}
-                className={`flex gap-2 quay-feed-ingress ${
-                  line.ok ? "text-signal-lime/85" : "text-stamp-amber"
-                }`}
-              >
-                <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
-                <span className="min-w-0 truncate">{line.msg}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="quay-terminal-scroll relative h-[6.75rem] overflow-hidden px-3">
+            <ul className="absolute inset-x-3 bottom-0 flex flex-col justify-end gap-0 font-mono text-[11px] leading-[1.35rem]">
+              {tail.map((line, i) => (
+                <li
+                  key={`${line.t}-${line.msg}-${visible}-${i}`}
+                  className={`flex gap-2 quay-terminal-line ${
+                    i === tail.length - 1 ? "quay-terminal-line-new" : ""
+                  } ${line.ok ? "text-signal-lime/85" : "text-stamp-amber"}`}
+                >
+                  <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
+                  <span className="min-w-0 truncate">{line.msg}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <div className="shrink-0 border-t border-signal-teal/10 bg-black/50 px-3 py-2 font-mono text-[11px] text-signal-cyan/90">
+          <div className="border-t border-signal-teal/10 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-signal-cyan/90">
             root@quaywatch:<span className="quay-cursor-blink">█</span>
           </div>
         </div>

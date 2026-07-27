@@ -77,10 +77,10 @@ export default function HomePage() {
           </div>
 
           <HomeTerminalHud />
+        </div>
 
-          <div className="relative -mx-4 mt-5 sm:-mx-5 lg:-mx-6 xl:-mx-7 2xl:-mx-8">
-            <ManifestTicker />
-          </div>
+        <div className="relative mt-3 w-full">
+          <ManifestTicker />
         </div>
 
         <div className="mt-5 sm:hidden">

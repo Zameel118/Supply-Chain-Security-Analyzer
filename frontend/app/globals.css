@@ -167,11 +167,11 @@ body {
 }
 
 .quay-hero-panel {
-  height: 34rem;
+  height: 37rem;
 }
 @media (min-width: 1280px) {
   .quay-hero-panel {
-    height: 36rem;
+    height: 39rem;
   }
 }
 
@@ -205,6 +205,31 @@ body {
 }
 .quay-terminal-log::-webkit-scrollbar {
   display: none;
+}
+
+.quay-terminal-scroll {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 18%);
+}
+
+@keyframes quay-terminal-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quay-terminal-line-new {
+  animation: quay-terminal-line-in 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quay-terminal-line-new {
+    animation: none;
+  }
 }
 
 .quay-radar-hub {
