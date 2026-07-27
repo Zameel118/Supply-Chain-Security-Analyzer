@@ -104,10 +104,9 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex h-full min-h-[440px] flex-col overflow-hidden border border-signal-teal/35 bg-ink-950/95 shadow-[0_0_56px_-14px_rgba(45,212,191,0.55)] quay-scanlines">
-      <div className="quay-feed-rail opacity-60" aria-hidden />
+    <aside className="relative flex h-full min-h-[440px] flex-col overflow-hidden quay-live-panel quay-scanlines">
       <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/20 blur-2xl" />
-      <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-stamp-amber/15 blur-2xl" />
+      <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (
         <span
           key={s.id}
@@ -117,18 +116,19 @@ export function HeroSignalRail() {
         />
       ))}
 
-      <div className="relative z-[1] flex items-center justify-between border-b border-manifest-200/10 px-3 py-2.5">
+      <div className="relative z-[1] quay-live-header flex items-center justify-between px-3 py-2.5">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inset-0 animate-ping rounded-full bg-signal-teal/50" />
-            <span className="relative h-2.5 w-2.5 rounded-full bg-signal-teal" />
+            <span className="absolute inset-0 animate-ping rounded-full bg-signal-cyan/50" />
+            <span className="relative h-2.5 w-2.5 rounded-full bg-signal-cyan" />
           </span>
           <div>
-            <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-signal-teal">
+            <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-manifest-100">
               Live action
             </p>
             <p className="font-mono text-[9px] text-stamp-slate">belt · signal feed</p>
           </div>
+          <span className="quay-live-pill">TX</span>
         </div>
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
@@ -148,12 +148,12 @@ export function HeroSignalRail() {
               {String(active + 1).padStart(2, "0")}
               <span className="text-sm text-stamp-slate">/07</span>
             </p>
-            <p className="mt-0.5 font-mono text-[9px] text-stamp-amber quay-board-live">RUN</p>
+            <p className="mt-0.5 font-mono text-[9px] text-signal-cyan quay-board-live">RUN</p>
           </div>
         </div>
         <div className="h-1.5 overflow-hidden bg-ink-800">
           <div
-            className="h-full bg-gradient-to-r from-signal-teal via-signal-teal to-stamp-amber transition-all duration-500"
+            className="h-full bg-gradient-to-r from-signal-teal via-signal-cyan to-stamp-amber transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -174,7 +174,7 @@ export function HeroSignalRail() {
               <div
                 className={`h-1.5 transition-all duration-300 ${
                   current
-                    ? "bg-stamp-amber shadow-[0_0_10px_rgba(251,191,36,0.7)]"
+                    ? "bg-signal-cyan shadow-[0_0_10px_rgba(34,211,238,0.65)]"
                     : done
                       ? "bg-signal-teal"
                       : "bg-manifest-200/15"
@@ -182,7 +182,7 @@ export function HeroSignalRail() {
               />
               <p
                 className={`mt-1 truncate text-center font-mono text-[8px] uppercase ${
-                  current ? "text-stamp-amber" : done ? "text-signal-teal" : "text-stamp-slate"
+                  current ? "text-signal-cyan" : done ? "text-signal-teal" : "text-stamp-slate"
                 }`}
               >
                 {String(i + 1).padStart(2, "0")}
@@ -197,7 +197,7 @@ export function HeroSignalRail() {
           <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
             Ingress stream
           </p>
-          <span className="font-mono text-[9px] text-signal-teal quay-board-live">TX</span>
+          <span className="font-mono text-[9px] text-signal-cyan quay-board-live">stream</span>
         </div>
         <ul className="flex flex-1 flex-col gap-1.5 overflow-hidden px-2.5 pb-3">
           {feed.map((row, i) => (

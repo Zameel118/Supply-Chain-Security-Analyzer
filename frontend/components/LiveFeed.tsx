@@ -8,14 +8,14 @@ import { fetchActivity, type ActivityEvent } from "@/lib/api";
 function statusTone(status: string | null): string {
   if (status === "complete") return "border-signal-teal/50 bg-signal-teal/5";
   if (status === "failed") return "border-stamp-red/50 bg-stamp-red/5";
-  if (status === "running") return "border-stamp-amber/50 bg-stamp-amber/5";
+  if (status === "running") return "border-signal-cyan/50 bg-signal-cyan/5";
   return "border-stamp-slate/40 bg-ink-800/40";
 }
 
 function statusDot(status: string | null): string {
   if (status === "complete") return "bg-signal-teal";
   if (status === "failed") return "bg-stamp-red";
-  if (status === "running") return "bg-stamp-amber quay-pulse";
+  if (status === "running") return "bg-signal-cyan quay-pulse";
   return "bg-stamp-slate";
 }
 
@@ -63,13 +63,13 @@ export function LiveFeed() {
       id="feed"
       label="Live action feed"
       data-tour="feed"
-      className="relative flex h-full min-h-[28rem] flex-col overflow-hidden !bg-ink-950/90 quay-scanlines"
+      className="relative flex h-full min-h-[28rem] flex-col overflow-hidden !bg-ink-950/90 quay-live-panel quay-scanlines"
     >
-      <div className="quay-feed-rail" aria-hidden />
-      <div className="relative z-[1] mb-4 flex items-center justify-between gap-2 border-b border-manifest-200/10 pb-3">
+      <div className="relative z-[1] mb-4 flex items-center justify-between gap-2 border-b border-manifest-200/10 pb-3 quay-live-header -mx-4 -mt-4 px-4 pt-3 sm:-mx-5 sm:-mt-5 sm:px-5 sm:pt-4">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
-          <span className="font-mono text-[10px] uppercase tracking-wider text-signal-teal">
+          <span className="h-2 w-2 rounded-full bg-signal-cyan quay-pulse" />
+          <span className="quay-live-pill">Live</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-manifest-100">
             Streaming · 3s · pulse #{flash}
           </span>
         </div>

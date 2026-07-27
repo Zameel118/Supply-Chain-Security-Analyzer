@@ -45,16 +45,17 @@ export function HeroConsole() {
   const shown = LINES.slice(0, visible);
 
   return (
-    <div className="relative overflow-hidden border border-signal-teal/25 bg-ink-950/90 shadow-[0_0_60px_-12px_rgba(45,212,191,0.35)] quay-scanlines">
-      <div className="quay-feed-rail opacity-60" aria-hidden />
-      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/10 blur-3xl" />
+    <div className="relative overflow-hidden quay-live-panel quay-scanlines">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/15 blur-3xl" />
+      <div className="pointer-events-none absolute -left-8 bottom-0 h-32 w-32 rounded-full bg-signal-cyan/10 blur-3xl" />
 
-      <div className="relative z-[1] flex items-center justify-between border-b border-manifest-200/10 px-4 py-2.5">
+      <div className="relative z-[1] quay-live-header flex items-center justify-between px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
-          <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-signal-teal">
+          <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-manifest-100">
             Live berth · demo
           </span>
+          <span className="quay-live-pill">Live</span>
         </div>
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>

@@ -170,6 +170,12 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
               <QuayLogo />
             </Link>
             <nav className="flex items-center gap-3">
+              <Link
+                href="/guide"
+                className="hidden font-mono text-[11px] uppercase tracking-wider text-stamp-slate hover:text-signal-teal sm:block"
+              >
+                User guide
+              </Link>
               {loading ? (
                 <span className="font-mono text-xs text-stamp-slate">…</span>
               ) : user ? (
@@ -381,6 +387,12 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
                 Tour (?)
               </button>
             ) : null}
+            <Link
+              href="/guide"
+              className="font-mono text-[10px] uppercase tracking-wider text-stamp-slate hover:text-signal-teal"
+            >
+              SOP guide
+            </Link>
             <p className="hidden font-mono text-[10px] tabular-nums text-stamp-slate sm:block">
               {clock}
             </p>

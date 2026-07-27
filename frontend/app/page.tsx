@@ -15,7 +15,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden">
         <div className="quay-grid absolute inset-0 opacity-50" />
         <div className="pointer-events-none absolute left-1/4 top-0 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-signal-teal/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-0 top-20 h-64 w-[28rem] rounded-full bg-stamp-amber/8 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-20 h-64 w-[28rem] rounded-full bg-signal-cyan/10 blur-3xl" />
 
         <div className="relative w-full px-4 pb-5 pt-8 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
           <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.25fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(240px,280px)] xl:gap-6">
@@ -30,7 +30,7 @@ export default function HomePage() {
               <h1 className="mt-5 font-display text-4xl font-bold uppercase leading-[0.92] tracking-wide text-manifest-100 sm:text-5xl lg:text-6xl 2xl:text-7xl">
                 Watch the quay.
                 <br />
-                <span className="bg-gradient-to-r from-signal-teal via-signal-teal to-stamp-amber bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-signal-teal via-signal-cyan to-stamp-amber bg-clip-text text-transparent">
                   Clear the cargo.
                 </span>
               </h1>

@@ -1,6 +1,6 @@
 # Quaywatch
 
-**Version 1.0.0** · Harbor watch for your software supply chain.
+**Version 1.1.0** · Harbor watch for your software supply chain.
 
 Sign in with GitHub, run a static inspection on a repository, and review vulnerabilities,
 typosquats, dependency confusion, CI/CD risks, secret patterns, and license holds.
@@ -9,6 +9,7 @@ typosquats, dependency confusion, CI/CD risks, secret patterns, and license hold
 | | |
 |---|---|
 | **Frontend** | [supply-chain-security-analyzer.vercel.app](https://supply-chain-security-analyzer.vercel.app) |
+| **User SOP** | [/guide](https://supply-chain-security-analyzer.vercel.app/guide) (step-by-step + screenshots) |
 | **API** | [quaywatch-api.onrender.com](https://quaywatch-api.onrender.com) |
 | **Health** | `GET /health` → `status`, `service`, `version` |
 
@@ -192,6 +193,12 @@ Portfolio / educational project. Add a license file if you open-source formally.
 ---
 
 ## Changelog
+
+### 1.1.0
+
+- Obsidian + magenta/cyan/violet UI refresh (removed yellow-teal combo)
+- Removed horizontal sweep effect on Live berth / Live action panels
+- In-app user SOP at `/guide` + `docs/QUAYWATCH_USER_SOP.md`
 
 ### 1.0.0
 

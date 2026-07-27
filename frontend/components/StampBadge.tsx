@@ -16,10 +16,10 @@ const STAMP_LABEL: Record<StampSeverity, string> = {
 const STAMP_COLOR: Record<StampSeverity, string> = {
   critical: "#E14B4B",
   high: "#E14B4B",
-  medium: "#F0A93F",
-  low: "#7C8CA6",
-  info: "#7C8CA6",
-  cleared: "#2DD4BF",
+  medium: "#A78BFA",
+  low: "#9494B8",
+  info: "#9494B8",
+  cleared: "#22D3EE",
 };
 
 /** Deterministic rotation from an id string, in the range −4deg … 3deg. */

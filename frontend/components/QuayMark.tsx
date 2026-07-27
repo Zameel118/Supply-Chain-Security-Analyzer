@@ -3,10 +3,7 @@ type Props = {
   className?: string;
 };
 
-/**
- * Radar-ring Q mark: navy field, teal rings, cream Q, amber beacon.
- * Inline SVG so nav/favicon-adjacent UI stays crisp and tiny.
- */
+/** Radar-ring Q — magenta / cyan / violet on obsidian. */
 export function QuayMark({ size = 28, className = "" }: Props) {
   return (
     <svg
@@ -18,36 +15,36 @@ export function QuayMark({ size = 28, className = "" }: Props) {
       className={className}
       aria-hidden
     >
-      <rect width="64" height="64" rx="4" fill="#0B1420" />
+      <rect width="64" height="64" rx="4" fill="#06060A" />
       <path
         d="M32 6.5a25.5 25.5 0 1 1-18.04 7.46"
-        stroke="#2DD4BF"
+        stroke="#FF3D81"
         strokeWidth="3.2"
         strokeLinecap="round"
       />
       <path
         d="M32 13a19 19 0 1 1-13.44 5.56"
-        stroke="#2DD4BF"
+        stroke="#22D3EE"
         strokeWidth="2.4"
         strokeLinecap="round"
         opacity="0.85"
       />
       <path
         d="M32 19.5a12.5 12.5 0 1 1-8.84 3.66"
-        stroke="#2DD4BF"
+        stroke="#A78BFA"
         strokeWidth="2"
         strokeLinecap="round"
         opacity="0.7"
       />
-      <circle cx="32" cy="30" r="10.5" stroke="#E8E2D0" strokeWidth="3.4" />
-      <circle cx="32" cy="28.5" r="3.4" fill="#F0A93F" />
+      <circle cx="32" cy="30" r="10.5" stroke="#F4F4F8" strokeWidth="3.4" />
+      <circle cx="32" cy="28.5" r="3.4" fill="#FF3D81" />
       <path
         d="M38.2 36.4 48 46.2"
-        stroke="#E8E2D0"
+        stroke="#F4F4F8"
         strokeWidth="3.6"
         strokeLinecap="round"
       />
-      <circle cx="48" cy="46.2" r="2.4" fill="#2DD4BF" />
+      <circle cx="48" cy="46.2" r="2.4" fill="#22D3EE" />
     </svg>
   );
 }

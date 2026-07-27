@@ -63,13 +63,13 @@ export function HomeLiveStream() {
           </h2>
         </div>
         <div className="flex items-center gap-2 font-mono text-[11px] text-stamp-slate">
-          <span className="h-2 w-2 rounded-full bg-signal-teal quay-pulse" />
+          <span className="h-2 w-2 rounded-full bg-signal-cyan quay-pulse" />
+          <span className="quay-live-pill">Live</span>
           STREAMING · {tick} pulses
         </div>
       </div>
 
-      <div className="relative overflow-hidden border border-signal-teal/20 bg-ink-950 quay-scanlines">
-        <div className="quay-feed-rail" aria-hidden />
+      <div className="relative overflow-hidden quay-live-panel quay-scanlines">
         <ul className="grid divide-y divide-manifest-200/10 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
           {rows.map((row, i) => (
             <li
