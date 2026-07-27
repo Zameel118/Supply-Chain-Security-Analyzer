@@ -8,28 +8,30 @@ module.exports = {
     extend: {
       colors: {
         ink: {
-          950: "#0A0E14",
-          800: "#121A24",
-          700: "#1A2433",
+          950: "#020408",
+          900: "#050A14",
+          800: "#0A1220",
+          700: "#0F1A2E",
+          600: "#152238",
         },
         manifest: {
-          100: "#E8ECF4",
-          200: "#94A3B8",
+          100: "#E2E8F0",
+          200: "#7C8BA3",
         },
         signal: {
-          /* Primary brand — industrial amber (class names kept for compatibility) */
-          teal: "#F59E0B",
-          tealDim: "#D97706",
-          /* Live telemetry / HUD steel blue */
-          cyan: "#38BDF8",
-          /* Cleared berth / pass */
-          lime: "#34D399",
+          /* Primary — electric blue (class names kept) */
+          teal: "#2563EB",
+          tealDim: "#1D4ED8",
+          /* Live HUD / scan line */
+          cyan: "#22D3EE",
+          /* Terminal pass / matrix */
+          lime: "#4ADE80",
         },
         stamp: {
           amber: "#FBBF24",
           red: "#F87171",
-          slate: "#64748B",
-          green: "#34D399",
+          slate: "#5C6B82",
+          green: "#4ADE80",
         },
       },
       fontFamily: {
@@ -38,8 +40,9 @@ module.exports = {
         mono: ["var(--font-plex-mono)", "monospace"],
       },
       boxShadow: {
-        "live-glow": "0 0 48px -12px rgba(245, 158, 11, 0.45)",
-        "live-inner": "inset 0 1px 0 rgba(255, 255, 255, 0.06)",
+        "live-glow": "0 0 48px -12px rgba(37, 99, 235, 0.55)",
+        "cyber-glow": "0 0 32px -8px rgba(34, 211, 238, 0.45)",
+        "live-inner": "inset 0 1px 0 rgba(255, 255, 255, 0.05)",
       },
     },
   },

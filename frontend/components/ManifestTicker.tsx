@@ -25,7 +25,7 @@ export function ManifestTicker() {
   const loop = [...PACKAGES, ...PACKAGES];
 
   return (
-    <div className="relative overflow-hidden border-y border-manifest-200/15 bg-ink-800/70 quay-scanlines">
+    <div className="relative overflow-hidden border-y border-signal-teal/25 bg-black/60 quay-scanlines">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-ink-950 to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-ink-950 to-transparent" />
       <div className="quay-ticker-track flex w-max gap-8 py-4">

@@ -391,7 +391,7 @@ export function TourGuide({ open, onClose, onAction }: Props) {
             <button
               type="button"
               onClick={next}
-              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-ink-950 hover:bg-signal-tealDim"
+              className="bg-signal-teal px-3 py-1.5 font-mono text-xs font-semibold text-white hover:bg-signal-tealDim"
             >
               {isLast ? "Finish" : "Next →"}
             </button>

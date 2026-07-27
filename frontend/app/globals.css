@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --ink-950: #0a0e14;
-  --ink-800: #121a24;
-  --signal-brand: #f59e0b;
-  --signal-live: #38bdf8;
-  --signal-safe: #34d399;
-  --manifest: #e8ecf4;
+  --ink-950: #020408;
+  --ink-800: #0a1220;
+  --signal-brand: #2563eb;
+  --signal-live: #22d3ee;
+  --signal-safe: #4ade80;
+  --manifest: #e2e8f0;
 }
 
 body {
@@ -16,10 +16,10 @@ body {
   color: var(--manifest);
   background-color: var(--ink-950);
   background-image:
-    radial-gradient(ellipse 85% 50% at 0% -5%, rgba(245, 158, 11, 0.11), transparent 55%),
-    radial-gradient(ellipse 55% 45% at 100% 0%, rgba(56, 189, 248, 0.09), transparent 50%),
-    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(59, 130, 246, 0.07), transparent 45%),
-    linear-gradient(165deg, #080b10 0%, #0a0e14 45%, #101820 100%);
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(37, 99, 235, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(34, 211, 238, 0.06), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 0% 80%, rgba(15, 26, 46, 0.9), transparent 50%),
+    linear-gradient(180deg, #000000 0%, #020408 40%, #0a1220 100%);
   background-attachment: fixed;
 }
 
@@ -28,30 +28,68 @@ body {
     0deg,
     transparent,
     transparent 2px,
-    rgba(10, 14, 20, 0.22) 2px,
-    rgba(10, 14, 20, 0.22) 3px
+    rgba(0, 0, 0, 0.35) 2px,
+    rgba(0, 0, 0, 0.35) 3px
   );
 }
 
 .quay-grid {
   background-image:
-    linear-gradient(rgba(245, 158, 11, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Live panels — industrial glass frame */
-.quay-live-panel {
-  border: 1px solid rgba(245, 158, 11, 0.38);
-  background: linear-gradient(155deg, rgba(18, 26, 36, 0.94) 0%, rgba(10, 14, 20, 0.98) 100%);
+/* Full hero command deck frame */
+.quay-command-deck {
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  background: linear-gradient(
+    165deg,
+    rgba(5, 10, 20, 0.92) 0%,
+    rgba(2, 4, 8, 0.97) 45%,
+    rgba(10, 18, 32, 0.9) 100%
+  );
   box-shadow:
-    0 0 48px -14px rgba(245, 158, 11, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 rgba(34, 211, 238, 0.1),
+    0 0 100px -30px rgba(37, 99, 235, 0.35);
+}
+
+.quay-terminal-chrome {
+  position: relative;
+}
+.quay-terminal-chrome::before,
+.quay-terminal-chrome::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(34, 211, 238, 0.55);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+.quay-terminal-chrome::before {
+  top: 10px;
+  left: 10px;
+  border-width: 2px 0 0 2px;
+}
+.quay-terminal-chrome::after {
+  bottom: 10px;
+  right: 10px;
+  border-width: 0 2px 2px 0;
+}
+
+.quay-live-panel {
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  background: linear-gradient(155deg, rgba(10, 18, 32, 0.96) 0%, rgba(2, 4, 8, 0.99) 100%);
+  box-shadow:
+    0 0 56px -16px rgba(37, 99, 235, 0.4),
+    inset 0 1px 0 rgba(34, 211, 238, 0.08);
 }
 
 .quay-live-header {
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.14), transparent 70%);
-  border-bottom: 1px solid rgba(245, 158, 11, 0.22);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.18), transparent 72%);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.25);
 }
 
 .quay-live-pill {
@@ -64,10 +102,20 @@ body {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.5);
-  background: rgba(56, 189, 248, 0.1);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.22);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.55);
+  background: rgba(34, 211, 238, 0.08);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.25);
+}
+
+.quay-matrix-line {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 10px;
+  color: rgba(74, 222, 128, 0.75);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes quay-ticker {
@@ -86,10 +134,10 @@ body {
 @keyframes quay-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 6px rgba(34, 211, 238, 0);
   }
 }
 
@@ -120,13 +168,13 @@ body {
 
 .quay-radar {
   border-radius: 9999px;
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  border: 1px solid rgba(37, 99, 235, 0.45);
   background:
-    radial-gradient(circle at center, rgba(245, 158, 11, 0.25) 0 2px, transparent 3px),
+    radial-gradient(circle at center, rgba(34, 211, 238, 0.35) 0 2px, transparent 3px),
     repeating-radial-gradient(
       circle at center,
       transparent 0 18px,
-      rgba(56, 189, 248, 0.08) 18px 19px
+      rgba(37, 99, 235, 0.1) 18px 19px
     );
 }
 .quay-radar::after {
@@ -137,7 +185,7 @@ body {
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    rgba(56, 189, 248, 0.4) 40deg,
+    rgba(34, 211, 238, 0.45) 40deg,
     transparent 70deg
   );
   animation: quay-radar-spin 4.5s linear infinite;
@@ -159,7 +207,7 @@ body {
 }
 
 .quay-count-glow {
-  text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  text-shadow: 0 0 24px rgba(34, 211, 238, 0.55);
 }
 
 .quay-btn-primary::before {
@@ -169,7 +217,7 @@ body {
   background: linear-gradient(
     110deg,
     transparent 20%,
-    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.28) 45%,
     transparent 70%
   );
   transform: translateX(-120%);
@@ -182,10 +230,10 @@ body {
 @keyframes quay-nav-glow {
   0%,
   100% {
-    box-shadow: inset 3px 0 0 #f59e0b, 0 0 0 rgba(245, 158, 11, 0);
+    box-shadow: inset 3px 0 0 #2563eb, 0 0 0 rgba(37, 99, 235, 0);
   }
   50% {
-    box-shadow: inset 3px 0 0 #f59e0b, 0 0 16px rgba(245, 158, 11, 0.28);
+    box-shadow: inset 3px 0 0 #22d3ee, 0 0 18px rgba(34, 211, 238, 0.22);
   }
 }
 
@@ -209,7 +257,7 @@ body {
 
 @keyframes quay-feed-ingress {
   0% {
-    background-color: rgba(245, 158, 11, 0.12);
+    background-color: rgba(37, 99, 235, 0.14);
     opacity: 0.7;
   }
   100% {
@@ -222,20 +270,21 @@ body {
   animation: quay-feed-ingress 0.7s ease-out;
 }
 
-/* Industrial hazard accent — left edge on hero panels */
-.quay-hazard-edge {
-  border-left: 4px solid transparent;
-  border-image: repeating-linear-gradient(
-      -45deg,
-      #f59e0b,
-      #f59e0b 6px,
-      #121a24 6px,
-      #121a24 12px
-    )
-    1;
+@keyframes quay-hex-drift {
+  0% {
+    opacity: 0.35;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translateX(-4px);
+  }
 }
 
-/* Spotlight tour — cutout dim; target uses .quay-tour-target */
+.quay-hex-drift {
+  animation: quay-hex-drift 3s ease-in-out infinite alternate;
+}
+
 .tour-root {
   position: fixed;
   inset: 0;
@@ -248,9 +297,9 @@ body {
   z-index: 210 !important;
   isolation: isolate;
   box-shadow:
-    0 0 0 1px rgba(245, 158, 11, 0.45),
-    0 12px 48px rgba(0, 0, 0, 0.55);
-  background-color: rgba(18, 26, 36, 0.98) !important;
+    0 0 0 1px rgba(34, 211, 238, 0.5),
+    0 12px 48px rgba(0, 0, 0, 0.65);
+  background-color: rgba(10, 18, 32, 0.98) !important;
 }
 
 .tour-tooltip {
@@ -258,9 +307,9 @@ body {
   z-index: 220;
   width: min(400px, calc(100vw - 24px));
   pointer-events: auto;
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  background: linear-gradient(160deg, #1a2433 0%, #0a0e14 100%);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(37, 99, 235, 0.55);
+  background: linear-gradient(160deg, #0f1a2e 0%, #020408 100%);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.65);
   transition:
     top 0.4s ease-out,
     left 0.4s ease-out,
@@ -277,15 +326,6 @@ body {
 }
 .tour-body-fade {
   animation: tip-body-in 0.32s ease-out;
-}
-
-@keyframes tour-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 @keyframes tip-body-in {
@@ -308,12 +348,13 @@ body {
   .quay-nav-live,
   .quay-board-live,
   .quay-btn-primary::before,
-  .quay-feed-ingress {
+  .quay-feed-ingress,
+  .quay-hex-drift {
     animation: none !important;
   }
 }
 
 :focus-visible {
-  outline: 2px solid #f59e0b;
+  outline: 2px solid #22d3ee;
   outline-offset: 2px;
 }

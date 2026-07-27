@@ -35,7 +35,7 @@ const FEED_POOL: Omit<FeedRow, "t">[] = [
 function stampTone(s: StampSeverity) {
   if (s === "critical" || s === "high") return "text-stamp-red";
   if (s === "medium") return "text-stamp-amber";
-  return "text-signal-teal";
+  return "text-signal-lime";
 }
 
 /**
@@ -104,14 +104,14 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex h-full min-h-[440px] flex-col overflow-hidden quay-live-panel quay-scanlines">
-      <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/20 blur-2xl" />
+    <aside className="relative flex h-full min-h-[420px] w-full flex-col overflow-hidden quay-live-panel quay-scanlines">
+      <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (
         <span
           key={s.id}
           aria-hidden
-          className="pointer-events-none absolute h-0.5 w-0.5 rounded-full bg-signal-teal/70 quay-pulse"
+          className="pointer-events-none absolute h-0.5 w-0.5 rounded-full bg-signal-cyan/80 quay-pulse"
           style={{ top: s.top, left: s.left, animationDelay: s.delay }}
         />
       ))}
@@ -144,7 +144,7 @@ export function HeroSignalRail() {
             </p>
           </div>
           <div className="text-right">
-            <p className="font-display text-2xl font-bold tabular-nums leading-none text-signal-teal">
+            <p className="font-display text-2xl font-bold tabular-nums leading-none text-signal-cyan">
               {String(active + 1).padStart(2, "0")}
               <span className="text-sm text-stamp-slate">/07</span>
             </p>
@@ -153,7 +153,7 @@ export function HeroSignalRail() {
         </div>
         <div className="h-1.5 overflow-hidden bg-ink-800">
           <div
-            className="h-full bg-gradient-to-r from-signal-teal via-signal-cyan to-stamp-amber transition-all duration-500"
+            className="h-full bg-gradient-to-r from-signal-teal via-signal-cyan to-signal-teal transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -177,7 +177,7 @@ export function HeroSignalRail() {
                     ? "bg-signal-cyan shadow-[0_0_10px_rgba(34,211,238,0.65)]"
                     : done
                       ? "bg-signal-teal"
-                      : "bg-manifest-200/15"
+                      : "bg-ink-600"
                 }`}
               />
               <p
@@ -205,8 +205,8 @@ export function HeroSignalRail() {
               key={`${row.t}-${row.msg}-${i}`}
               className={`quay-feed-ingress flex items-center gap-2 border px-2 py-1.5 ${
                 i === 0
-                  ? "border-signal-teal/40 bg-signal-teal/10"
-                  : "border-manifest-200/10 bg-ink-800/45"
+                  ? "border-signal-cyan/40 bg-signal-teal/10"
+                  : "border-signal-teal/15 bg-black/35"
               }`}
             >
               <StampBadge severity={row.stamp} seed={`${row.msg}-${i}`} size="sm" />

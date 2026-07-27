@@ -13,7 +13,7 @@ export function QuayLogo({ size = 28, showWordmark = true, className = "" }: Pro
       <QuayMark size={size} className="shrink-0 ring-1 ring-signal-cyan/35" />
       {showWordmark ? (
         <span className="font-display text-sm font-bold uppercase tracking-[0.14em] text-manifest-100">
-          Quay<span className="text-signal-teal">watch</span>
+          Quay<span className="text-signal-cyan">watch</span>
         </span>
       ) : null}
     </span>

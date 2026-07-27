@@ -164,7 +164,7 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
   if (marketing) {
     return (
       <div className="min-h-screen">
-        <header className="sticky top-0 z-30 border-b border-manifest-200/10 bg-ink-950/80 backdrop-blur-md">
+        <header className="sticky top-0 z-30 border-b border-signal-teal/20 bg-black/85 backdrop-blur-md">
           <div className="mx-auto flex w-full items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
             <Link href="/">
               <QuayLogo />
@@ -172,7 +172,7 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
             <nav className="flex items-center gap-3">
               <Link
                 href="/guide"
-                className="hidden font-mono text-[11px] uppercase tracking-wider text-stamp-slate hover:text-signal-teal sm:block"
+                className="hidden font-mono text-[11px] uppercase tracking-wider text-stamp-slate hover:text-signal-cyan sm:block"
               >
                 User guide
               </Link>
@@ -181,7 +181,7 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
               ) : user ? (
                 <>
                   <span className="hidden items-center gap-1.5 font-mono text-[10px] text-stamp-slate sm:flex">
-                    <span className="h-1.5 w-1.5 rounded-full bg-signal-teal quay-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-signal-lime quay-pulse" />
                     {user.username} · online
                   </span>
                   <Button href="/dashboard" className="!py-2">
