@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StampBadge } from "@/components/StampBadge";
 
 const LINES = [
@@ -19,6 +19,7 @@ export function HeroConsole() {
   const [visible, setVisible] = useState(3);
   const [clock, setClock] = useState("--:--:--");
   const [latency, setLatency] = useState(1.2);
+  const logRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     const reduced =
@@ -44,6 +45,12 @@ export function HeroConsole() {
 
   const shown = LINES.slice(0, visible);
 
+  useEffect(() => {
+    const el = logRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [visible]);
+
   return (
     <div className="relative flex h-full min-h-[420px] flex-col overflow-hidden quay-live-panel quay-scanlines">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/20 blur-3xl" />
@@ -60,21 +67,23 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] grid flex-1 grid-cols-[1fr_auto] gap-0">
-        <div className="relative flex min-h-[200px] items-center justify-center border-r border-signal-teal/15 p-6">
-          <div className="quay-radar absolute inset-6 opacity-90" aria-hidden />
-          <div className="relative z-10 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-stamp-slate">
-              Threat sweep
-            </p>
-            <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-signal-cyan quay-count-glow">
-              07
-            </p>
-            <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+      <div className="relative z-[1] grid h-[228px] shrink-0 grid-cols-[1fr_auto] gap-0">
+        <div className="relative flex items-center justify-center border-r border-signal-teal/15 p-4">
+          <div className="relative h-[184px] w-[184px] shrink-0">
+            <div className="quay-radar absolute inset-0 opacity-90" aria-hidden />
+            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-stamp-slate">
+                Threat sweep
+              </p>
+              <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-signal-cyan quay-count-glow">
+                07
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+            </div>
           </div>
         </div>
 
-        <div className="w-[9.5rem] space-y-2 bg-black/25 p-3 sm:w-44">
+        <div className="flex w-[9.5rem] shrink-0 flex-col justify-center space-y-2 bg-black/25 p-3 sm:w-44">
           <StampBadge severity="cleared" seed="hero-ok" size="sm" />
           <StampBadge severity="high" seed="hero-hi" size="sm" />
           <StampBadge severity="medium" seed="hero-md" size="sm" />
@@ -85,7 +94,10 @@ export function HeroConsole() {
         </div>
       </div>
 
-      <ul className="relative z-[1] min-h-[9rem] space-y-0.5 overflow-hidden border-t border-signal-teal/15 bg-black/30 px-3 py-2.5 font-mono text-[11px]">
+      <ul
+        ref={logRef}
+        className="relative z-[1] h-[11.25rem] shrink-0 space-y-0.5 overflow-y-auto overflow-x-hidden border-t border-signal-teal/15 bg-black/30 px-3 py-2.5 font-mono text-[11px]"
+      >
         {shown.map((line, i) => (
           <li
             key={`${line.t}-${i}-${visible}`}

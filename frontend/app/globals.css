@@ -167,7 +167,9 @@ body {
 }
 
 .quay-radar {
+  position: absolute;
   border-radius: 9999px;
+  aspect-ratio: 1 / 1;
   border: 1px solid rgba(37, 99, 235, 0.45);
   background:
     radial-gradient(circle at center, rgba(34, 211, 238, 0.35) 0 2px, transparent 3px),
