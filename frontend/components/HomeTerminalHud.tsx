@@ -26,7 +26,10 @@ export function HomeTerminalHud() {
   }, []);
 
   return (
-    <div className="mt-5 border border-signal-teal/25 bg-ink-900/90 px-3 py-2.5 font-mono text-[10px] sm:px-4">
+    <div
+      className="mt-5 border border-signal-teal/25 bg-ink-900/90 px-3 py-2.5 font-mono text-[10px] sm:px-4"
+      aria-hidden="true"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-stamp-slate">
           <span>
