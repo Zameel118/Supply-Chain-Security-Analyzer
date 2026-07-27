@@ -110,7 +110,7 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:min-h-[28rem]">
+    <aside className="quay-hero-panel relative flex h-full w-full min-h-0 flex-col overflow-hidden quay-live-panel quay-scanlines">
       <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (
@@ -132,7 +132,7 @@ export function HeroSignalRail() {
             <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-manifest-100">
               Live action
             </p>
-            <p className="font-mono text-[9px] text-stamp-slate">belt · signal feed</p>
+            <p className="font-mono text-[8px] uppercase tracking-wider text-stamp-slate">belt</p>
           </div>
           <span className="quay-live-pill">TX</span>
         </div>
@@ -216,7 +216,7 @@ export function HeroSignalRail() {
           </p>
           <span className="font-mono text-[9px] text-signal-cyan quay-board-live">stream</span>
         </div>
-        <ul className="flex flex-1 flex-col justify-start gap-2 overflow-hidden px-2.5 pb-3 xl:px-4 xl:pb-4">
+        <ul className="flex min-h-0 flex-1 flex-col justify-start gap-1.5 overflow-hidden px-2 pb-2.5 pt-0 xl:px-3 xl:pb-3">
           {feed.map((row, i) => (
             <li
               key={`${row.t}-${row.msg}-${i}`}

@@ -47,7 +47,9 @@ export function HeroConsole() {
   const tail = LINES.slice(0, visible).slice(-TAIL_LINES);
 
   return (
-    <div className="relative flex w-full flex-col overflow-hidden quay-live-panel quay-scanlines">
+    <div className="quay-hero-panel relative flex h-full w-full min-h-0 flex-col overflow-hidden quay-live-panel quay-berth-console quay-scanlines">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal-cyan/50 to-transparent" />
+
       <div className="relative z-[1] shrink-0 quay-live-header flex items-center justify-between px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-signal-cyan quay-pulse" />
@@ -59,55 +61,57 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] flex flex-wrap items-center gap-2 border-b border-signal-teal/15 bg-black/30 px-3 py-2">
+      <div className="relative z-[1] flex shrink-0 flex-wrap items-center gap-2 border-b border-signal-teal/15 bg-black/30 px-3 py-2">
         <StampBadge severity="cleared" seed="hero-ok" size="sm" />
         <StampBadge severity="high" seed="hero-hi" size="sm" />
         <StampBadge severity="medium" seed="hero-md" size="sm" />
-        <div className="ml-auto flex items-baseline gap-1.5 border border-signal-teal/20 bg-ink-900/90 px-2.5 py-1 font-mono">
+        <div className="ml-auto flex items-baseline gap-1.5 border border-signal-teal/25 bg-ink-900/90 px-2.5 py-1 font-mono shadow-[0_0_16px_-6px_rgba(34,211,238,0.35)]">
           <span className="text-[9px] uppercase text-stamp-slate">Latency</span>
           <span className="text-sm tabular-nums text-signal-cyan">{latency.toFixed(1)}s</span>
         </div>
       </div>
 
-      <div className="relative z-[1] flex justify-center border-b border-signal-teal/10 py-4 xl:py-5">
-        <div className="quay-radar-hub relative h-[12.5rem] w-[12.5rem] sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[15rem] xl:w-[15rem]">
-          <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
-          <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
-              Threat sweep
-            </p>
-            <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl">
-              07
-            </p>
-            <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+      <div className="relative z-[1] grid min-h-0 flex-1 grid-cols-1 border-t border-signal-teal/10 xl:grid-cols-2">
+        <div className="quay-berth-viz relative flex items-center justify-center border-b border-signal-teal/10 py-5 xl:border-b-0 xl:border-r xl:py-6">
+          <div className="quay-radar-hub relative h-[11.5rem] w-[11.5rem] sm:h-[12.5rem] sm:w-[12.5rem] xl:h-[14rem] xl:w-[14rem]">
+            <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
+            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
+                Threat sweep
+              </p>
+              <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl">
+                07
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-manifest-200/60">checkpoints armed</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="relative z-[1] shrink-0 bg-black/40">
-        <div className="flex items-center justify-between border-b border-signal-teal/10 px-3 py-1">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
-            shell · berth.log
-          </p>
-          <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
-        </div>
+        <div className="relative flex min-h-0 flex-col bg-black/45">
+          <div className="flex shrink-0 items-center justify-between border-b border-signal-teal/10 px-3 py-1">
+            <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
+              shell · berth.log
+            </p>
+            <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
+          </div>
 
-        <ul className="quay-terminal-log space-y-0 px-3 py-1.5 font-mono text-[11px] leading-snug">
-          {tail.map((line, i) => (
-            <li
-              key={`${line.t}-${i}-${visible}`}
-              className={`flex gap-2 quay-feed-ingress ${
-                line.ok ? "text-signal-lime/85" : "text-stamp-amber"
-              }`}
-            >
-              <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
-              <span className="min-w-0 truncate">{line.msg}</span>
-            </li>
-          ))}
-        </ul>
+          <ul className="quay-terminal-log min-h-0 flex-1 space-y-0 overflow-hidden px-3 py-2 font-mono text-[11px] leading-snug">
+            {tail.map((line, i) => (
+              <li
+                key={`${line.t}-${i}-${visible}`}
+                className={`flex gap-2 quay-feed-ingress ${
+                  line.ok ? "text-signal-lime/85" : "text-stamp-amber"
+                }`}
+              >
+                <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
+                <span className="min-w-0 truncate">{line.msg}</span>
+              </li>
+            ))}
+          </ul>
 
-        <div className="border-t border-signal-teal/10 px-3 py-1.5 font-mono text-[11px] text-signal-cyan/90">
-          root@quaywatch:<span className="quay-cursor-blink">█</span>
+          <div className="shrink-0 border-t border-signal-teal/10 bg-black/50 px-3 py-2 font-mono text-[11px] text-signal-cyan/90">
+            root@quaywatch:<span className="quay-cursor-blink">█</span>
+          </div>
         </div>
       </div>
     </div>

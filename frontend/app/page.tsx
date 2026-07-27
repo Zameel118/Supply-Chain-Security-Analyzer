@@ -26,7 +26,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative grid items-start gap-4 xl:grid-cols-12 xl:gap-4 2xl:gap-5">
+          <div className="relative grid items-stretch gap-4 xl:grid-cols-12 xl:gap-4 2xl:gap-5">
             <div className="flex flex-col gap-5 xl:col-span-4">
               <div>
                 <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
@@ -67,11 +67,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="xl:col-span-4">
+            <div className="flex min-h-0 w-full xl:col-span-5">
               <HeroConsole />
             </div>
 
-            <div className="xl:col-span-4">
+            <div className="flex min-h-0 w-full xl:col-span-3">
               <HeroSignalRail />
             </div>
           </div>
