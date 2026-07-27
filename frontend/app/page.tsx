@@ -26,8 +26,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative grid items-stretch gap-4 xl:grid-cols-12 xl:gap-5 2xl:gap-6">
-            <div className="flex flex-col justify-between xl:col-span-4 2xl:col-span-3">
+          <div className="relative grid items-start gap-4 xl:grid-cols-12 xl:gap-4 2xl:gap-5">
+            <div className="flex flex-col gap-5 xl:col-span-4">
               <div>
                 <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-signal-cyan quay-pulse" />
@@ -36,7 +36,7 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.92] tracking-wide text-manifest-100 sm:text-5xl xl:text-[3.4rem] 2xl:text-[4.25rem]">
+                <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.92] tracking-wide text-manifest-100 sm:text-5xl xl:text-[3.25rem] 2xl:text-[3.75rem]">
                   Watch the quay.
                   <br />
                   <span className="bg-gradient-to-r from-manifest-100 via-signal-cyan to-signal-teal bg-clip-text text-transparent">
@@ -44,12 +44,12 @@ export default function HomePage() {
                   </span>
                 </h1>
 
-                <p className="mt-4 max-w-none text-base leading-relaxed text-manifest-200/85 sm:text-lg 2xl:pr-4">
+                <p className="mt-4 text-base leading-relaxed text-manifest-200/85 sm:text-lg">
                   Terminal-grade inspection for GitHub: OSV sweeps, typosquats, CI drift, secret
                   patterns, license holds. Static analysis only — zero code execution on our side.
                 </p>
 
-                <div className="mt-5 flex flex-wrap gap-2 font-mono text-[11px] text-stamp-slate">
+                <div className="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-stamp-slate">
                   <span className="border border-signal-teal/25 bg-black/40 px-2.5 py-1">
                     <span className="text-signal-cyan">7</span> analyzers
                   </span>
@@ -62,16 +62,16 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-5 hidden sm:block 2xl:mt-6">
-                <HomeMatrixStats />
+              <div className="hidden sm:block">
+                <HomeMatrixStats compact />
               </div>
             </div>
 
-            <div className="xl:col-span-5 2xl:col-span-6">
+            <div className="xl:col-span-4">
               <HeroConsole />
             </div>
 
-            <div className="xl:col-span-3">
+            <div className="xl:col-span-4">
               <HeroSignalRail />
             </div>
           </div>

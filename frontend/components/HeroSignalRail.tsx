@@ -110,7 +110,7 @@ export function HeroSignalRail() {
   );
 
   return (
-    <aside className="relative flex h-full min-h-[32rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:min-h-[34rem] 2xl:min-h-[36rem]">
+    <aside className="relative flex w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:min-h-[28rem]">
       <div className="pointer-events-none absolute -right-10 top-6 h-36 w-36 rounded-full bg-signal-teal/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-10 bottom-20 h-32 w-32 rounded-full bg-signal-cyan/10 blur-2xl" />
       {sparkles.map((s) => (

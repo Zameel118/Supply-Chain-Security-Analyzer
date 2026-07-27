@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 
 type Metric = { label: string; value: number; tone: string };
 
+type Props = {
+  /** 2×2 grid for narrow hero column; avoids crushed 4-column layout */
+  compact?: boolean;
+};
+
 function format(n: number) {
+  if (n >= 100_000) return `${(n / 1000).toFixed(0)}k`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
   return n.toLocaleString();
 }
@@ -16,7 +22,7 @@ const BASE: Metric[] = [
   { label: "Berths cleared", value: 48, tone: "text-signal-lime" },
 ];
 
-export function HomeMatrixStats() {
+export function HomeMatrixStats({ compact = false }: Props) {
   const [metrics, setMetrics] = useState(BASE);
 
   useEffect(() => {
@@ -37,15 +43,21 @@ export function HomeMatrixStats() {
     return () => clearInterval(id);
   }, []);
 
+  const gridClass = compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4";
+
   return (
-    <div className="grid grid-cols-2 gap-px border border-signal-teal/25 bg-signal-teal/20 sm:grid-cols-4">
+    <div className={`grid ${gridClass} gap-px border border-signal-teal/25 bg-signal-teal/20`}>
       {metrics.map((m) => (
         <div
           key={m.label}
-          className="bg-black/50 px-3 py-3 quay-scanlines sm:px-4 sm:py-4"
+          className="min-w-0 bg-black/50 px-2.5 py-2.5 quay-scanlines sm:px-3 sm:py-3"
         >
-          <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">{m.label}</p>
-          <p className={`mt-1 font-mono text-2xl font-semibold tabular-nums ${m.tone}`}>
+          <p className="truncate font-mono text-[8px] uppercase tracking-wide text-stamp-slate sm:text-[9px]">
+            {m.label}
+          </p>
+          <p
+            className={`mt-0.5 truncate font-mono text-base font-semibold tabular-nums sm:text-lg ${m.tone}`}
+          >
             {format(m.value)}
           </p>
         </div>
