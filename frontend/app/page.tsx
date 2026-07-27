@@ -30,8 +30,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative grid items-stretch gap-5 xl:grid-cols-12 xl:gap-6 2xl:gap-7">
-            <div className="flex flex-col justify-center xl:col-span-5">
+          <div className="relative grid items-start gap-5 xl:grid-cols-12 xl:gap-6 2xl:gap-7">
+            <div className="flex flex-col justify-center xl:col-span-4">
               <div className="inline-flex w-fit items-center gap-2 border border-signal-cyan/35 bg-ink-800/80 px-3 py-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-signal-cyan quay-pulse" />
                 <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-cyan">
@@ -78,11 +78,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="xl:col-span-4">
+            <div className="xl:col-span-5">
               <HeroConsole />
             </div>
 
-            <div className="flex min-h-[34rem] xl:col-span-3">
+            <div className="xl:col-span-3">
               <HeroSignalRail />
             </div>
           </div>

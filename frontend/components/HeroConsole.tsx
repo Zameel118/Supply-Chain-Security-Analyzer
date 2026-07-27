@@ -15,6 +15,8 @@ const LINES = [
   { t: "12:04:31", msg: "badge.svg refreshed", ok: true },
 ];
 
+const TAIL_LINES = 5;
+
 export function HeroConsole() {
   const [visible, setVisible] = useState(3);
   const [clock, setClock] = useState("--:--:--");
@@ -30,7 +32,7 @@ export function HeroConsole() {
     }
     const id = setInterval(() => {
       setVisible((n) => (n >= LINES.length ? 2 : n + 1));
-      setLatency((n) => Math.round((0.8 + Math.random() * 1.4) * 10) / 10);
+      setLatency(Math.round((0.8 + Math.random() * 1.4) * 10) / 10);
     }, 1200);
     return () => clearInterval(id);
   }, []);
@@ -42,14 +44,13 @@ export function HeroConsole() {
     return () => clearInterval(id);
   }, []);
 
-  const shown = LINES.slice(0, visible);
+  const tail = LINES.slice(0, visible).slice(-TAIL_LINES);
 
   return (
-    <div className="relative flex h-full min-h-[34rem] flex-col overflow-hidden quay-live-panel quay-scanlines 2xl:min-h-[36rem]">
+    <div className="relative flex h-[36rem] w-full flex-col overflow-hidden quay-live-panel quay-scanlines xl:h-[38rem] 2xl:h-[40rem]">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-teal/20 blur-3xl" />
-      <div className="pointer-events-none absolute -left-8 bottom-0 h-36 w-36 rounded-full bg-signal-cyan/12 blur-3xl" />
 
-      <div className="relative z-[1] quay-live-header flex items-center justify-between px-4 py-2.5">
+      <div className="relative z-[1] shrink-0 quay-live-header flex items-center justify-between px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-signal-cyan quay-pulse" />
           <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-manifest-100">
@@ -60,49 +61,65 @@ export function HeroConsole() {
         <span className="font-mono text-[10px] tabular-nums text-stamp-slate">{clock}</span>
       </div>
 
-      <div className="relative z-[1] grid h-[26rem] grid-cols-[minmax(0,1fr)_12rem] gap-0 xl:h-[29rem] xl:grid-cols-[minmax(0,1fr)_13rem] 2xl:h-[31rem] 2xl:grid-cols-[minmax(0,1fr)_14rem]">
-        <div className="relative flex items-center justify-center border-r border-signal-teal/15 p-6 xl:p-8">
-          <div className="relative flex h-[17.5rem] w-[17.5rem] shrink-0 items-center justify-center xl:h-[21rem] xl:w-[21rem] 2xl:h-[23rem] 2xl:w-[23rem]">
+      {/* Sweep + status — fixed height, never grows */}
+      <div className="relative z-[1] grid h-[17.5rem] shrink-0 grid-cols-1 gap-0 border-b border-signal-teal/15 sm:grid-cols-[minmax(0,1.15fr)_minmax(10.5rem,0.85fr)] xl:h-[19rem] 2xl:h-[20rem] 2xl:grid-cols-[minmax(0,1.2fr)_minmax(12rem,0.8fr)]">
+        <div className="relative flex items-center justify-center border-b border-signal-teal/10 p-4 sm:border-b-0 sm:border-r sm:p-5">
+          <div className="relative h-[11.5rem] w-[11.5rem] shrink-0 sm:h-[12.5rem] sm:w-[12.5rem] xl:h-[14rem] xl:w-[14rem] 2xl:h-[15rem] 2xl:w-[15rem]">
             <div className="quay-radar absolute inset-0 opacity-95" aria-hidden />
-            <div className="relative z-10 text-center">
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-stamp-slate">
+            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stamp-slate">
                 Threat sweep
               </p>
-              <p className="mt-2 font-mono text-5xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-6xl 2xl:text-7xl">
+              <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-signal-cyan quay-count-glow xl:text-5xl 2xl:text-6xl">
                 07
               </p>
-              <p className="mt-2 font-mono text-xs text-manifest-200/60 2xl:text-sm">checkpoints armed</p>
+              <p className="mt-1 font-mono text-[10px] text-manifest-200/60 xl:text-xs">
+                checkpoints armed
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-3 bg-black/25 p-3 xl:p-4">
+        <div className="grid grid-cols-2 content-center gap-2 bg-black/20 p-3 sm:p-4">
           <StampBadge severity="cleared" seed="hero-ok" size="sm" />
           <StampBadge severity="high" seed="hero-hi" size="sm" />
           <StampBadge severity="medium" seed="hero-md" size="sm" />
-          <div className="border border-signal-teal/20 bg-ink-900/90 px-3 py-3">
+          <div className="col-span-2 border border-signal-teal/20 bg-ink-900/90 px-3 py-2">
             <p className="font-mono text-[9px] uppercase text-stamp-slate">Latency</p>
-            <p className="mt-1 font-mono text-2xl tabular-nums text-signal-cyan">{latency.toFixed(1)}s</p>
+            <p className="font-mono text-xl tabular-nums text-signal-cyan xl:text-2xl">
+              {latency.toFixed(1)}s
+            </p>
           </div>
         </div>
       </div>
 
-      <ul className="relative z-[1] flex-1 space-y-0.5 border-t border-signal-teal/15 bg-black/30 px-3 py-3 font-mono text-[11px] xl:text-[12px]">
-        {shown.map((line, i) => (
-          <li
-            key={`${line.t}-${i}-${visible}`}
-            className={`flex gap-2 quay-feed-ingress ${
-              line.ok ? "text-signal-lime/85" : "text-stamp-amber"
-            }`}
-          >
-            <span className="shrink-0 text-stamp-slate">{line.t}</span>
-            <span className="truncate">{line.msg}</span>
-          </li>
-        ))}
-        <li className="text-signal-cyan/90">
+      {/* Terminal — fixed block; log tail only, no layout shift */}
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col bg-black/35">
+        <div className="flex shrink-0 items-center justify-between border-b border-signal-teal/15 px-3 py-1.5">
+          <p className="font-mono text-[9px] uppercase tracking-wider text-stamp-slate">
+            shell · berth.log
+          </p>
+          <span className="font-mono text-[9px] text-signal-lime/80">tail -n {TAIL_LINES}</span>
+        </div>
+
+        <ul className="quay-terminal-log flex min-h-0 flex-1 flex-col justify-end gap-0.5 overflow-hidden px-3 py-2 font-mono text-[11px] leading-relaxed xl:text-[12px]">
+          {tail.map((line, i) => (
+            <li
+              key={`${line.t}-${i}-${visible}`}
+              className={`flex shrink-0 gap-2 quay-feed-ingress ${
+                line.ok ? "text-signal-lime/85" : "text-stamp-amber"
+              }`}
+            >
+              <span className="w-[4.5rem] shrink-0 tabular-nums text-stamp-slate">{line.t}</span>
+              <span className="min-w-0 truncate">{line.msg}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="shrink-0 border-t border-signal-teal/15 px-3 py-2 font-mono text-[11px] text-signal-cyan/90 xl:text-[12px]">
           root@quaywatch:<span className="quay-cursor-blink">█</span>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   );
 }
