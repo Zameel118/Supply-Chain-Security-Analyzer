@@ -62,7 +62,7 @@ export function HomeLiveStream() {
   }
 
   return (
-      <section className="w-full px-2 py-8 sm:px-3 lg:px-4 xl:px-5">
+    <section className="w-full px-4 py-8 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-signal-cyan">

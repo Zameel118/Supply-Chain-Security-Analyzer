@@ -165,7 +165,7 @@ export function AppShell({ children, marketing = false, onOpenTour }: Props) {
     return (
       <div className="min-h-screen">
         <header className="sticky top-0 z-30 border-b border-signal-teal/20 bg-black/85 backdrop-blur-md">
-          <div className="flex w-full items-center justify-between px-2 py-3.5 sm:px-3 lg:px-4 xl:px-5">
+          <div className="mx-auto flex w-full items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
             <Link href="/">
               <QuayLogo />
             </Link>
