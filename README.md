@@ -68,12 +68,14 @@ docker compose up --build
 | API health | http://localhost:8000/health |
 | API docs | http://localhost:8000/docs |
 
-Generate secrets:
+Generate secrets (stdlib only — no `pip install` needed):
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(48))"
-python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+python -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
 ```
+
+Or via Docker: `docker compose exec backend python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`
 
 ## Features
 
@@ -127,9 +129,13 @@ Blueprint file: [`render.yaml`](./render.yaml)
 `SECRET_KEY` can use Render’s generated value. `DATABASE_URL` / `REDIS_URL` come from the blueprint.
 
 4. After deploy, open `https://<api-host>/health` — expect `{"status":"ok"}` (or similar).
-5. Optional: set `PERIODIC_RESCAN_ENABLED=true` on the API service, ensure **quaywatch-beat** is running.
 
-Free-tier notes: web services may spin down when idle (cold starts); Postgres/Redis free plans have limits. Upgrade plans if you need always-on workers.
+**Free plan note:** Render does **not** allow Background Workers on free.
+`render.yaml` only creates API + Postgres + Redis. Celery runs **inside**
+`quaywatch-api` via `backend/scripts/start_web.sh`. Optional paid workers:
+[`render.workers.yaml`](./render.workers.yaml).
+
+5. Keep `PERIODIC_RESCAN_ENABLED=false` on free unless you add a paid Beat worker.
 
 ### 3. Vercel (frontend)
 

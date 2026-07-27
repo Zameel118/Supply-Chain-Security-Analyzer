@@ -1,0 +1,118 @@
+# OPTIONAL — paid Render workers (Starter plan or higher)
+# ---------------------------------------------------------
+# Free Blueprint sync fails with:
+#   "service type is not available for this plan"
+# because Background Workers are not on the free plan.
+#
+# Default render.yaml already runs Celery inside quaywatch-api.
+# Only use this file if you upgrade and want dedicated workers.
+#
+# How to apply:
+#   1. Upgrade to a plan that allows Background Workers
+#   2. Merge these services into render.yaml (or create them manually
+#      in the Render dashboard using the same Docker image/env)
+#   3. Change quaywatch-api dockerCommand back to API-only:
+#        sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port \$PORT"
+#      so you do not run two workers.
+
+services:
+  - type: worker
+    name: quaywatch-worker
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quaywatch-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: quaywatch-redis
+          type: keyvalue
+          property: connectionString
+      - key: SECRET_KEY
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: SECRET_KEY
+      - key: TOKEN_ENCRYPTION_KEY
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: TOKEN_ENCRYPTION_KEY
+      - key: GITHUB_CLIENT_ID
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: GITHUB_CLIENT_ID
+      - key: GITHUB_CLIENT_SECRET
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: GITHUB_CLIENT_SECRET
+      - key: FRONTEND_URL
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: FRONTEND_URL
+      - key: CORS_ORIGINS
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: CORS_ORIGINS
+      - key: PERIODIC_RESCAN_ENABLED
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: PERIODIC_RESCAN_ENABLED
+      - key: PERIODIC_RESCAN_MIN_AGE_HOURS
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: PERIODIC_RESCAN_MIN_AGE_HOURS
+
+  - type: worker
+    name: quaywatch-beat
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: celery -A app.tasks.celery_app beat --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quaywatch-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: quaywatch-redis
+          type: keyvalue
+          property: connectionString
+      - key: SECRET_KEY
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: SECRET_KEY
+      - key: TOKEN_ENCRYPTION_KEY
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: TOKEN_ENCRYPTION_KEY
+      - key: PERIODIC_RESCAN_ENABLED
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: PERIODIC_RESCAN_ENABLED
+      - key: PERIODIC_RESCAN_MIN_AGE_HOURS
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: PERIODIC_RESCAN_MIN_AGE_HOURS
+      - key: FRONTEND_URL
+        fromService:
+          name: quaywatch-api
+          type: web
+          envVarKey: FRONTEND_URL

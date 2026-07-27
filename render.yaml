@@ -1,9 +1,11 @@
-# Quaywatch — Render Blueprint
+# Quaywatch — Render Blueprint (free-tier compatible)
 # https://render.com/docs/blueprint-spec
 #
-# Deploy: connect this repo in Render → New → Blueprint.
-# After the API URL exists, deploy the frontend on Vercel and set
-# FRONTEND_URL / CORS_ORIGINS / GitHub OAuth callback (see README).
+# Free plan supports: web + Postgres + Key Value (Redis).
+# It does NOT support Background Workers — Celery runs inside quaywatch-api
+# via scripts/start_web.sh.
+#
+# Optional paid workers: see render.workers.yaml (Starter plan or higher).
 
 databases:
   - name: quaywatch-db
@@ -24,6 +26,7 @@ services:
     plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    # Starts Celery worker + uvicorn (free-tier workaround)
     dockerCommand: sh scripts/start_web.sh
     healthCheckPath: /health
     envVars:
@@ -39,7 +42,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: TOKEN_ENCRYPTION_KEY
-        sync: false # MUST set: Fernet key (see README) — never reuse local .env
+        sync: false # MUST set: Fernet key (see PHASE_9_DEPLOY_GUIDE.txt)
       - key: GITHUB_CLIENT_ID
         sync: false
       - key: GITHUB_CLIENT_SECRET
@@ -56,105 +59,3 @@ services:
         value: "24"
       - key: PERIODIC_RESCAN_MIN_AGE_HOURS
         value: "20"
-
-  - type: worker
-    name: quaywatch-worker
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    dockerCommand: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: quaywatch-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: quaywatch-redis
-          type: keyvalue
-          property: connectionString
-      - key: SECRET_KEY
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: SECRET_KEY
-      - key: TOKEN_ENCRYPTION_KEY
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: TOKEN_ENCRYPTION_KEY
-      - key: GITHUB_CLIENT_ID
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: GITHUB_CLIENT_ID
-      - key: GITHUB_CLIENT_SECRET
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: GITHUB_CLIENT_SECRET
-      - key: FRONTEND_URL
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: FRONTEND_URL
-      - key: CORS_ORIGINS
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: CORS_ORIGINS
-      - key: PERIODIC_RESCAN_ENABLED
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: PERIODIC_RESCAN_ENABLED
-      - key: PERIODIC_RESCAN_MIN_AGE_HOURS
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: PERIODIC_RESCAN_MIN_AGE_HOURS
-
-  # Optional: enable after first successful deploy. Free-tier quotas are limited.
-  - type: worker
-    name: quaywatch-beat
-    runtime: docker
-    plan: free
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    dockerCommand: celery -A app.tasks.celery_app beat --loglevel=info
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: quaywatch-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: quaywatch-redis
-          type: keyvalue
-          property: connectionString
-      - key: SECRET_KEY
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: SECRET_KEY
-      - key: TOKEN_ENCRYPTION_KEY
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: TOKEN_ENCRYPTION_KEY
-      - key: PERIODIC_RESCAN_ENABLED
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: PERIODIC_RESCAN_ENABLED
-      - key: PERIODIC_RESCAN_MIN_AGE_HOURS
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: PERIODIC_RESCAN_MIN_AGE_HOURS
-      - key: FRONTEND_URL
-        fromService:
-          name: quaywatch-api
-          type: web
-          envVarKey: FRONTEND_URL
