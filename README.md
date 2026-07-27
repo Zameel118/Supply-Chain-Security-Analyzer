@@ -92,6 +92,16 @@ docker compose up --build
 
 Optional Celery beat (periodic re-scans): `docker compose --profile beat up`
 
+### Running tests
+
+Backend unit tests do **not** require a `.env` file — `backend/tests/conftest.py` sets dummy `SECRET_KEY` / `TOKEN_ENCRYPTION_KEY` for collection only.
+
+```bash
+cd backend
+pip install -r requirements.txt
+pytest
+```
+
 ---
 
 ## Versioning
